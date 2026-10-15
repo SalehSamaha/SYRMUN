@@ -1,6 +1,7 @@
 import Reveal from '../components/Reveal.jsx';
 import { EmptyState, PageHero, Spinner } from '../components/ui.jsx';
 import { useRows } from '../lib/content.jsx';
+import { useI18n } from '../lib/i18n.jsx';
 import { lines, safeUrl, usePageMeta } from '../lib/util.js';
 
 function Person({ role, name }) {
@@ -15,42 +16,38 @@ function Person({ role, name }) {
 
 export default function Committees() {
   const { data, loading } = useRows('committees');
-  usePageMeta('Committees', 'The committees, topics and background guides for SYRMUN 2027.');
+  const { t, tr } = useI18n();
+  usePageMeta(t('common.committees'), t('cp.meta'));
 
   return (
     <>
-      <PageHero
-        eyebrow="Committees"
-        title="Committees & topics"
-        intro="Every committee at SYRMUN 2027, with its mandate, topics and Chairs. Background guides are linked here as soon as they are published."
-      />
+      <PageHero eyebrow={t('common.committees')} title={t('cp.title')} intro={t('cp.intro')} />
       <section className="py-16">
         <div className="container-x">
           {loading ? (
             <Spinner />
           ) : data.length === 0 ? (
-            <EmptyState
-              title="Committees will be announced soon"
-              text="We are finalising the committees and topics. Check back here, or follow us on social media."
-            />
+            <EmptyState title={t('committees.empty.t')} text={t('committees.empty.d')} />
           ) : (
             <>
-              <nav aria-label="Committees" className="mb-10 flex flex-wrap gap-2">
+              <nav aria-label={t('common.committees')} className="mb-10 flex flex-wrap gap-2">
                 {data.map((c) => (
                   <a
                     key={c.id}
                     href={`#${c.id}`}
                     className="rounded-full border border-navy-200 px-4 py-1.5 text-sm font-semibold text-navy-800 transition hover:border-gold-500 hover:bg-gold-100/50"
                   >
-                    {c.abbreviation || c.name}
+                    {c.abbreviation || tr(c, 'name')}
                   </a>
                 ))}
               </nav>
 
               <div className="space-y-8">
                 {data.map((c) => {
-                  const topics = lines(c.topics);
+                  const topics = lines(tr(c, 'topics'));
                   const guide = safeUrl(c.guide_url);
+                  const chair = tr(c, 'chair');
+                  const vice = tr(c, 'vice_chair');
                   return (
                     <Reveal key={c.id}>
                       <article id={c.id} className="card scroll-mt-24 !p-0 overflow-hidden">
@@ -60,55 +57,53 @@ export default function Committees() {
                               {c.abbreviation}
                             </span>
                           )}
-                          <h2 className="text-2xl font-bold">{c.name}</h2>
+                          <h2 className="text-2xl font-bold">{tr(c, 'name')}</h2>
                         </div>
                         <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-3">
                           <div className="space-y-5 lg:col-span-2">
-                            {c.description && (
+                            {tr(c, 'description') && (
                               <div>
-                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">About the committee</h3>
-                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-800">{c.description}</p>
+                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">{t('cp.about')}</h3>
+                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-800">{tr(c, 'description')}</p>
                               </div>
                             )}
-                            {c.mandate && (
+                            {tr(c, 'mandate') && (
                               <div>
-                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">Mandate</h3>
-                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-800">{c.mandate}</p>
+                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">{t('cp.mandate')}</h3>
+                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-800">{tr(c, 'mandate')}</p>
                               </div>
                             )}
                             {topics.length > 0 && (
                               <div>
                                 <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">
-                                  {topics.length > 1 ? 'Topics' : 'Topic'}
+                                  {topics.length > 1 ? t('cp.topics') : t('cp.topic')}
                                 </h3>
-                                <ul className="mt-2 list-disc space-y-1 pl-5 text-navy-800">
-                                  {topics.map((t) => (
-                                    <li key={t}>{t}</li>
+                                <ul className="mt-2 list-disc space-y-1 ps-5 text-navy-800">
+                                  {topics.map((topic) => (
+                                    <li key={topic}>{topic}</li>
                                   ))}
                                 </ul>
                               </div>
                             )}
-                            {c.issues && (
+                            {tr(c, 'issues') && (
                               <div>
-                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">The issues</h3>
-                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-800">{c.issues}</p>
+                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">{t('cp.issues')}</h3>
+                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-800">{tr(c, 'issues')}</p>
                               </div>
                             )}
                           </div>
                           <aside className="space-y-5 rounded-xl bg-navy-50 p-5">
                             <dl className="space-y-4">
-                              <Person role="Chair" name={c.chair} />
-                              <Person role="Vice-Chair" name={c.vice_chair} />
-                              {!c.chair && !c.vice_chair && (
-                                <p className="text-sm text-navy-600">Chairs to be confirmed.</p>
-                              )}
+                              <Person role={t('cp.chair')} name={chair} />
+                              <Person role={t('cp.vice')} name={vice} />
+                              {!chair && !vice && <p className="text-sm text-navy-600">{t('cp.chairsTbc')}</p>}
                             </dl>
                             {guide ? (
                               <a href={guide} target="_blank" rel="noopener noreferrer" className="btn-navy w-full">
-                                Background guide
+                                {t('common.backgroundGuide')}
                               </a>
                             ) : (
-                              <p className="text-sm text-navy-600">Background guide coming soon.</p>
+                              <p className="text-sm text-navy-600">{t('cp.guideSoon')}</p>
                             )}
                           </aside>
                         </div>

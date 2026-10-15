@@ -66,12 +66,13 @@ export function getFeeTable(settings) {
   ];
 }
 
-/** "2027-03-01" -> "1 March 2027" (no timezone shifting). */
-export function formatDate(d) {
+/** "2027-03-01" -> "1 March 2027" / Arabic "1 مارس 2027" (no timezone shifting, Western digits). */
+export function formatDate(d, lang = 'en') {
   if (!d) return '';
   const dt = new Date(`${d}T12:00:00Z`);
   if (Number.isNaN(dt.getTime())) return '';
-  return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const locale = lang === 'ar' ? 'ar-u-nu-latn' : 'en-GB';
+  return dt.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
 
 export const formatMoney = (n) => (n == null ? '' : `$${Number.isInteger(n) ? n : n.toFixed(2)}`);

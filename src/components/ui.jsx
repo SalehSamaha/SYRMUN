@@ -1,4 +1,5 @@
 import Reveal from './Reveal.jsx';
+import { useI18n } from '../lib/i18n.jsx';
 
 /** Navy banner at the top of inner pages. */
 export function PageHero({ eyebrow, title, intro }) {
@@ -34,8 +35,9 @@ export function EmptyState({ title, text }) {
 }
 
 export function Spinner() {
+  const { t } = useI18n();
   return (
-    <div className="flex justify-center py-12" role="status" aria-label="Loading">
+    <div className="flex justify-center py-12" role="status" aria-label={t('common.loading')}>
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-navy-100 border-t-gold-500" />
     </div>
   );
@@ -43,12 +45,13 @@ export function Spinner() {
 
 /** Accordion list of questions. */
 export function FaqList({ items }) {
+  const { tr } = useI18n();
   return (
     <div className="divide-y divide-navy-100 rounded-2xl border border-navy-100 bg-white shadow-soft">
       {items.map((f) => (
         <details key={f.id} className="group px-5 py-4 sm:px-6">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-navy-900">
-            <span>{f.question}</span>
+            <span>{tr(f, 'question')}</span>
             <span
               aria-hidden="true"
               className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-navy-200 text-lg leading-none text-gold-600 transition group-open:rotate-45"
@@ -56,7 +59,7 @@ export function FaqList({ items }) {
               +
             </span>
           </summary>
-          <p className="mt-3 whitespace-pre-line leading-relaxed text-navy-700">{f.answer}</p>
+          <p className="mt-3 whitespace-pre-line leading-relaxed text-navy-700">{tr(f, 'answer')}</p>
         </details>
       ))}
     </div>

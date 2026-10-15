@@ -6,8 +6,9 @@ import { SETTINGS_GROUPS } from './config.js';
 
 function Input({ field, value, onChange }) {
   const id = `s_${field.key}`;
+  const rtl = field.arabic ? { dir: 'rtl', lang: 'ar' } : {};
   if (field.type === 'textarea')
-    return <textarea id={id} rows={4} className="field" value={value} onChange={(e) => onChange(e.target.value)} />;
+    return <textarea id={id} rows={4} {...rtl} className="field" value={value} onChange={(e) => onChange(e.target.value)} />;
   if (field.type === 'select')
     return (
       <select id={id} className="field" value={value} onChange={(e) => onChange(e.target.value)}>
@@ -21,6 +22,7 @@ function Input({ field, value, onChange }) {
   return (
     <input
       id={id}
+      {...rtl}
       type={field.type === 'date' ? 'date' : field.type === 'number' ? 'number' : 'text'}
       min={field.type === 'number' ? 0 : undefined}
       step={field.type === 'number' ? '0.01' : undefined}

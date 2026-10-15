@@ -3,6 +3,7 @@ import Reveal from '../components/Reveal.jsx';
 import { EmptyState, PageHero } from '../components/ui.jsx';
 import { useRows, useSettings } from '../lib/content.jsx';
 import { formatDate, formatMoney, getFeeTable, getRegistrationState } from '../lib/fees.js';
+import { useI18n } from '../lib/i18n.jsx';
 import { lines, safeUrl, usePageMeta } from '../lib/util.js';
 
 function Block({ title, children }) {
@@ -17,50 +18,46 @@ function Block({ title, children }) {
   );
 }
 
-const DOC_LABEL = { handbook: 'Delegate Handbook', background_guide: 'Background guide', other: 'Document' };
-
 export default function Delegates() {
   const { settings } = useSettings();
+  const { t, tr, st, lang } = useI18n();
   const schedule = useRows('schedule_items');
   const docs = useRows('documents');
   const reg = getRegistrationState(settings);
   const fees = getFeeTable(settings);
 
-  usePageMeta('Delegate information', 'Everything delegates need to know about SYRMUN 2027: preparation, dress code, schedule, fees and materials.');
+  usePageMeta(t('common.delegateInfo'), t('dp.meta'));
 
-  const days = [...new Set(schedule.data.map((s) => s.day))];
+  const days = [...new Set(schedule.data.map((s) => tr(s, 'day')))];
+  const kindLabel = (k) => t(['handbook', 'background_guide'].includes(k) ? `dp.kind.${k}` : 'dp.kind.other');
 
   return (
     <>
-      <PageHero
-        eyebrow="Delegate information"
-        title="Everything you need to know before you register"
-        intro="What to expect, how to prepare, what it costs and where to find your materials."
-      />
+      <PageHero eyebrow={t('common.delegateInfo')} title={t('dp.title')} intro={t('dp.intro')} />
 
       <section className="py-16">
         <div className="container-x grid gap-6 md:grid-cols-2">
-          <Block title="What is MUN?">
-            <p className="whitespace-pre-line">{settings.what_is_mun}</p>
+          <Block title={t('dp.what')}>
+            <p className="whitespace-pre-line">{st('what_is_mun')}</p>
           </Block>
-          <Block title="Who can participate?">
-            <p className="whitespace-pre-line">{settings.who_can_participate}</p>
+          <Block title={t('dp.who')}>
+            <p className="whitespace-pre-line">{st('who_can_participate')}</p>
           </Block>
-          <Block title="What happens at the conference?">
-            <p className="whitespace-pre-line">{settings.what_happens}</p>
+          <Block title={t('dp.happens')}>
+            <p className="whitespace-pre-line">{st('what_happens')}</p>
           </Block>
-          <Block title="What should delegates prepare?">
-            <ul className="list-disc space-y-1.5 pl-5">
-              {lines(settings.what_to_prepare).map((l) => (
+          <Block title={t('dp.prepare')}>
+            <ul className="list-disc space-y-1.5 ps-5">
+              {lines(st('what_to_prepare')).map((l) => (
                 <li key={l}>{l}</li>
               ))}
             </ul>
           </Block>
-          <Block title="Dress code">
-            <p className="whitespace-pre-line">{settings.dress_code}</p>
+          <Block title={t('dp.dress')}>
+            <p className="whitespace-pre-line">{st('dress_code')}</p>
           </Block>
-          <Block title="What delegates will receive">
-            <p className="whitespace-pre-line">{settings.what_delegates_receive}</p>
+          <Block title={t('dp.receive')}>
+            <p className="whitespace-pre-line">{st('what_delegates_receive')}</p>
           </Block>
         </div>
 
@@ -69,12 +66,12 @@ export default function Delegates() {
           <Reveal>
             <div className="overflow-hidden rounded-2xl border border-navy-100 shadow-soft">
               <div className="hero-bg px-6 py-5 text-white sm:px-8">
-                <h2 className="text-2xl font-bold">Registration fees & deadlines</h2>
+                <h2 className="text-2xl font-bold">{t('dp.fees')}</h2>
                 <p className="mt-1 text-sm text-navy-100">
                   {settings.registration_opens
-                    ? `Registration opens ${formatDate(settings.registration_opens)}.`
-                    : 'Registration dates will be confirmed soon.'}{' '}
-                  Dates are inclusive and use Damascus time.
+                    ? t('dp.opens', { date: formatDate(settings.registration_opens, lang) })
+                    : t('dp.datesSoon')}{' '}
+                  {t('dp.inclusive')}
                 </p>
               </div>
               <div className="grid divide-y divide-navy-100 bg-white sm:grid-cols-3 sm:divide-x sm:divide-y-0">
@@ -82,14 +79,14 @@ export default function Delegates() {
                   const current = reg.state === 'open' && reg.phase === f.phase;
                   return (
                     <div key={f.phase} className={`p-6 text-center ${current ? 'bg-gold-100/60' : ''}`}>
-                      <p className="text-sm font-semibold uppercase tracking-wide text-navy-600">{f.label}</p>
+                      <p className="text-sm font-semibold uppercase tracking-wide text-navy-600">{t(`phase.${f.phase}`)}</p>
                       <p className="mt-2 font-serif text-4xl font-bold text-navy-950">{formatMoney(f.amount)}</p>
                       <p className="mt-2 text-sm text-navy-700">
-                        {f.until ? `until ${formatDate(f.until)}` : 'dates to be confirmed'}
+                        {f.until ? t('dp.until', { date: formatDate(f.until, lang) }) : t('dp.tbc')}
                       </p>
                       {current && (
                         <span className="mt-3 inline-block rounded-full bg-gold-500 px-3 py-1 text-xs font-bold text-navy-950">
-                          Current price
+                          {t('dp.current')}
                         </span>
                       )}
                     </div>
@@ -100,7 +97,7 @@ export default function Delegates() {
           </Reveal>
           <div className="mt-6 text-center">
             <Link to="/register" className="btn-gold">
-              {reg.state === 'open' ? 'Register now' : 'See registration status'}
+              {reg.state === 'open' ? t('dp.registerNow') : t('dp.regStatus')}
             </Link>
           </div>
         </div>
@@ -108,12 +105,12 @@ export default function Delegates() {
         {/* Schedule */}
         <div className="container-x mt-16">
           <Reveal>
-            <h2 className="text-3xl font-bold text-navy-950">Conference schedule</h2>
+            <h2 className="text-3xl font-bold text-navy-950">{t('dp.schedule')}</h2>
             <div className="mt-3 h-1 w-14 rounded bg-gold-500" />
           </Reveal>
           <div className="mt-8">
             {days.length === 0 ? (
-              <EmptyState title="Schedule to be confirmed" text="The full schedule will be published here as soon as it is confirmed." />
+              <EmptyState title={t('dp.schedule.t')} text={t('dp.schedule.d')} />
             ) : (
               <div className="grid gap-6 md:grid-cols-2">
                 {days.map((day) => (
@@ -122,13 +119,13 @@ export default function Delegates() {
                       <h3 className="text-xl font-bold text-navy-950">{day}</h3>
                       <ul className="mt-4 space-y-4">
                         {schedule.data
-                          .filter((s) => s.day === day)
+                          .filter((s) => tr(s, 'day') === day)
                           .map((s) => (
                             <li key={s.id} className="flex gap-4">
-                              <span className="w-16 shrink-0 font-semibold text-gold-700">{s.start_time}</span>
+                              <span className="ltr-text w-16 shrink-0 font-semibold text-gold-700">{s.start_time}</span>
                               <span>
-                                <span className="block font-semibold text-navy-900">{s.title}</span>
-                                {s.description && <span className="block text-sm text-navy-700">{s.description}</span>}
+                                <span className="block font-semibold text-navy-900">{tr(s, 'title')}</span>
+                                {tr(s, 'description') && <span className="block text-sm text-navy-700">{tr(s, 'description')}</span>}
                               </span>
                             </li>
                           ))}
@@ -144,15 +141,12 @@ export default function Delegates() {
         {/* Documents */}
         <div className="container-x mt-16">
           <Reveal>
-            <h2 className="text-3xl font-bold text-navy-950">Handbook & materials</h2>
+            <h2 className="text-3xl font-bold text-navy-950">{t('dp.docs')}</h2>
             <div className="mt-3 h-1 w-14 rounded bg-gold-500" />
           </Reveal>
           <div className="mt-8">
             {docs.data.length === 0 ? (
-              <EmptyState
-                title="Materials coming soon"
-                text="The Delegate Handbook and other approved materials will be available to download here when they are ready."
-              />
+              <EmptyState title={t('dp.docs.t')} text={t('dp.docs.d')} />
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
                 {docs.data.map((d) => (
@@ -167,11 +161,9 @@ export default function Delegates() {
                         PDF
                       </span>
                       <span>
-                        <span className="block text-xs font-semibold uppercase tracking-wide text-gold-700">
-                          {DOC_LABEL[d.kind] || 'Document'}
-                        </span>
-                        <span className="block text-lg font-bold text-navy-950">{d.title}</span>
-                        {d.description && <span className="mt-1 block text-sm text-navy-700">{d.description}</span>}
+                        <span className="block text-xs font-semibold uppercase tracking-wide text-gold-700">{kindLabel(d.kind)}</span>
+                        <span className="block text-lg font-bold text-navy-950">{tr(d, 'title')}</span>
+                        {tr(d, 'description') && <span className="mt-1 block text-sm text-navy-700">{tr(d, 'description')}</span>}
                       </span>
                     </a>
                   </Reveal>
@@ -183,14 +175,14 @@ export default function Delegates() {
 
         <div className="container-x mt-16">
           <div className="rounded-2xl bg-navy-50 p-8 text-center">
-            <h2 className="text-2xl font-bold text-navy-950">Still have a question?</h2>
-            <p className="mt-2 text-navy-700">Check the FAQ or get in touch with the organising team.</p>
+            <h2 className="text-2xl font-bold text-navy-950">{t('dp.question.t')}</h2>
+            <p className="mt-2 text-navy-700">{t('dp.question.d')}</p>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
               <Link to="/faq" className="btn-navy">
-                FAQ
+                {t('common.faq')}
               </Link>
               <Link to="/contact" className="btn-outline-dark">
-                Contact us
+                {t('common.contactUs')}
               </Link>
             </div>
           </div>

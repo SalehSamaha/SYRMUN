@@ -1,5 +1,25 @@
 # SYRMUN website — changes
 
+## v1.1.0 — 2026-10-15
+
+**Dates**
+- "June 2027" removed everywhere. The site now says **2027 · dates to be confirmed** (Arabic: 2027 · ستُعلن المواعيد لاحقًا). Countdown stays off until you enter the first conference day in Admin > Settings.
+- When the dates are confirmed, change "Dates (as shown on the site)" in Admin > Settings & fees (English and Arabic boxes).
+
+**English / Arabic button**
+- A language button in the top bar (and next to the menu icon on phones) switches the whole public site between English and Arabic, with right-to-left layout. The choice is remembered in the visitor's browser (default: English).
+- All fixed text is translated (menus, forms, errors, confirmation screens, privacy page, 404…). Translations live in `src/lib/translations.js`.
+- Text you edit in the admin panel (committees, board, FAQ, schedule, settings texts…) now has an extra "— Arabic (العربية)" box under each field. If the Arabic box is empty, visitors see the English text.
+- Applications are still stored in whatever language the delegate typed. Committee choices are saved in English so your admin list stays consistent.
+- The admin panel itself stays in English.
+
+**Database update required (existing project)**
+- Run `supabase/migration_v1.1_arabic.sql` once (adds the Arabic columns, replaces a saved "June 2027" date text and the starter FAQ answer). Safe to run twice. `schema.sql` includes the same changes for fresh projects.
+
+**Please have a native Arabic speaker review** the Arabic texts, especially the Privacy page and anything legal-sounding. They are machine-quality drafts.
+
+**Tests**: new `tests/i18n.test.js` (every key has both languages, placeholders match, no "June", every key used in code exists). SQL migration tested on a copy of the live v1 schema.
+
 ## v1.0.0 — 2026-10-14 (first delivery)
 
 **Public site** (React + Vite + Tailwind, navy / white / gold, mobile-first)

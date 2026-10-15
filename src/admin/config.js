@@ -155,7 +155,7 @@ export const SETTINGS_GROUPS = [
   {
     title: 'Conference',
     fields: [
-      { key: 'conference_dates_text', label: 'Dates (as shown on the site)', type: 'text', help: 'e.g. "12–13 June 2027"' },
+      { key: 'conference_dates_text', label: 'Dates (as shown on the site)', type: 'text', help: 'e.g. "2027 · dates to be confirmed" — then, once confirmed, "12–13 March 2027"' },
       { key: 'conference_start', label: 'First day (for the countdown)', type: 'date', help: 'Leave empty until the dates are confirmed.' },
       { key: 'venue_text', label: 'Location', type: 'text' },
       { key: 'tagline', label: 'Tagline', type: 'textarea' },
@@ -199,6 +199,40 @@ export const SETTINGS_GROUPS = [
     ],
   },
 ];
+
+// ---- Arabic twins -------------------------------------------------------
+// Every field listed here gets an extra "<name>_ar" input right after it. Empty = site shows English.
+const AR_CONTENT = {
+  board_members: ['name', 'position', 'bio'],
+  committees: ['name', 'description', 'mandate', 'topics', 'issues', 'chair', 'vice_chair'],
+  announcements: ['title', 'body'],
+  schedule_items: ['day', 'title', 'description'],
+  documents: ['title', 'description'],
+  sponsors: ['name'],
+  faqs: ['question', 'answer', 'category'],
+  staff_positions: ['title', 'description', 'requirements'],
+};
+const AR_SETTINGS = [
+  'payment_instructions', 'conference_dates_text', 'venue_text', 'tagline', 'staff_intro',
+  'about_mission', 'about_vision', 'about_goals', 'what_is_mun', 'who_can_participate',
+  'what_happens', 'what_to_prepare', 'dress_code', 'what_delegates_receive',
+];
+const arLabel = (l) => `${l} — Arabic (العربية)`;
+
+Object.entries(AR_CONTENT).forEach(([table, names]) => {
+  CONTENT[table].fields = CONTENT[table].fields.flatMap((f) =>
+    names.includes(f.name)
+      ? [f, { ...f, name: `${f.name}_ar`, label: arLabel(f.label), required: false, help: undefined, arabic: true }]
+      : [f],
+  );
+});
+SETTINGS_GROUPS.forEach((g) => {
+  g.fields = g.fields.flatMap((f) =>
+    AR_SETTINGS.includes(f.key)
+      ? [f, { ...f, key: `${f.key}_ar`, label: arLabel(f.label), help: undefined, arabic: true }]
+      : [f],
+  );
+});
 
 export const STATUS_LABEL = {
   received: 'Received',

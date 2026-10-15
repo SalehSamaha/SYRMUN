@@ -2,25 +2,23 @@ import BoardCard from '../components/BoardCard.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { EmptyState, PageHero, Spinner } from '../components/ui.jsx';
 import { useRows } from '../lib/content.jsx';
+import { useI18n } from '../lib/i18n.jsx';
 import { usePageMeta } from '../lib/util.js';
 
 export default function Board() {
   const { data, loading } = useRows('board_members');
-  usePageMeta('Executive Board', 'Meet the Executive Board organising SYRMUN 2027.');
+  const { t } = useI18n();
+  usePageMeta(t('common.execBoard'), t('boardpage.meta'));
 
   return (
     <>
-      <PageHero
-        eyebrow="Executive Board"
-        title="The people behind SYRMUN"
-        intro="The Executive Board plans the conference, chairs the committees and makes sure every delegate has a great experience."
-      />
+      <PageHero eyebrow={t('common.execBoard')} title={t('boardpage.title')} intro={t('boardpage.intro')} />
       <section className="py-16">
         <div className="container-x">
           {loading ? (
             <Spinner />
           ) : data.length === 0 ? (
-            <EmptyState title="Executive Board to be announced" text="We will introduce the team here soon." />
+            <EmptyState title={t('board.empty.t')} text={t('board.empty.d')} />
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {data.map((m, i) => (

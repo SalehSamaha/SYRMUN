@@ -37,30 +37,27 @@ export function ErrorBox({ children }) {
   );
 }
 
+// [value stored in the database, translation key]
 export const AGE_GROUPS = [
-  ['under_16', 'Under 16'],
-  ['16_17', '16–17'],
-  ['18_24', '18–24'],
-  ['25_plus', '25 or older'],
+  ['under_16', 'age.under_16'],
+  ['16_17', 'age.16_17'],
+  ['18_24', 'age.18_24'],
+  ['25_plus', 'age.25_plus'],
 ];
 
 export const MUN_EXPERIENCE = [
-  ['none', 'This is my first MUN'],
-  ['1_2', '1–2 conferences'],
-  ['3_plus', '3 or more conferences'],
+  ['none', 'exp.none'],
+  ['1_2', 'exp.1_2'],
+  ['3_plus', 'exp.3_plus'],
 ];
 
-/** Turns a Supabase/Postgres error into something a delegate can understand. */
-export function friendlyError(error, kind = 'application') {
+/** Turns a Supabase/Postgres error into something a delegate can understand (in their language). */
+export function friendlyError(error, kind, t) {
   const msg = `${error?.message || ''}`;
-  if (error?.code === '23505') {
-    return kind === 'staff'
-      ? 'An application for this position has already been submitted with this email address.'
-      : 'An application has already been submitted with this email address. If you need to change something, please contact us.';
-  }
-  if (msg.includes('registration_not_open')) return 'Registration is not open yet.';
-  if (msg.includes('registration_closed')) return 'Registration is now closed.';
-  if (msg.includes('staff_applications_closed')) return 'Staff applications are currently closed.';
-  if (error?.code === '23514') return 'Some of the information you entered is not valid. Please check the form and try again.';
-  return 'Something went wrong and your application was not sent. Please try again in a moment, or contact us if it keeps happening.';
+  if (error?.code === '23505') return t(kind === 'staff' ? 'err.dupStaff' : 'err.dupDelegate');
+  if (msg.includes('registration_not_open')) return t('err.notOpen');
+  if (msg.includes('registration_closed')) return t('err.closed');
+  if (msg.includes('staff_applications_closed')) return t('err.staffClosed');
+  if (error?.code === '23514') return t('err.invalid');
+  return t('err.generic');
 }

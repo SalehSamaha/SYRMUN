@@ -45,3 +45,4 @@ Supabase free plan has no downloadable automatic backups. Until you upgrade, dow
 - Dates are Damascus time and include the whole last day.
 - Settings and published content are public. Never put secrets there.
 - The Privacy page is a plain-language starting point, not legal advice; have it reviewed.
+- Languages: English and Arabic. Fixed text is in `src/lib/translations.js`; admin-edited content has Arabic boxes next to the English ones.

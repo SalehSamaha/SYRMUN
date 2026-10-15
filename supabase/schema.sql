@@ -331,7 +331,7 @@ create policy "site-files admin delete" on storage.objects
 insert into public.faqs (question, answer, category, sort_order)
 select * from (values
   ('What is SYRMUN?',
-   'SYRMUN is the Syria Model United Nations: a two-day Model UN conference taking place in Damascus, Syria in June 2027.',
+   'SYRMUN is the Syria Model United Nations: a two-day Model UN conference taking place in Damascus, Syria in 2027 (dates to be confirmed).',
    'General', 1),
   ('Do I need previous MUN experience?',
    'No. SYRMUN is designed to be welcoming to first-time delegates as well as experienced ones. You will be asked about your experience on the registration form so we can support you properly.',
@@ -356,3 +356,17 @@ select * from (values
    'Partners', 8)
 ) as v(question, answer, category, sort_order)
 where not exists (select 1 from public.faqs);
+
+
+-- ---------- Arabic versions of editable content (v1.1) --------------
+-- Each editable text field has an optional "<field>_ar" twin. If it is empty the
+-- website shows the English text. Safe to run more than once.
+alter table public.board_members   add column if not exists name_ar text, add column if not exists position_ar text, add column if not exists bio_ar text;
+alter table public.committees      add column if not exists name_ar text, add column if not exists description_ar text, add column if not exists mandate_ar text,
+                                   add column if not exists topics_ar text, add column if not exists issues_ar text, add column if not exists chair_ar text, add column if not exists vice_chair_ar text;
+alter table public.announcements   add column if not exists title_ar text, add column if not exists body_ar text;
+alter table public.schedule_items  add column if not exists day_ar text, add column if not exists title_ar text, add column if not exists description_ar text;
+alter table public.documents       add column if not exists title_ar text, add column if not exists description_ar text;
+alter table public.sponsors        add column if not exists name_ar text;
+alter table public.faqs            add column if not exists question_ar text, add column if not exists answer_ar text, add column if not exists category_ar text;
+alter table public.staff_positions add column if not exists title_ar text, add column if not exists description_ar text, add column if not exists requirements_ar text;

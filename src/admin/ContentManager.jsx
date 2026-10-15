@@ -9,9 +9,10 @@ const blank = (fields) =>
 
 function FieldInput({ field, value, onChange }) {
   const id = `f_${field.name}`;
+  const rtl = field.arabic ? { dir: 'rtl', lang: 'ar' } : {};
   switch (field.type) {
     case 'textarea':
-      return <textarea id={id} rows={5} className="field" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />;
+      return <textarea id={id} rows={5} {...rtl} className="field" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />;
     case 'bool':
       return (
         <label className="flex items-center gap-3">
@@ -38,7 +39,7 @@ function FieldInput({ field, value, onChange }) {
     case 'number':
       return <input id={id} type="number" className="field" value={value ?? 0} onChange={(e) => onChange(e.target.value)} />;
     default:
-      return <input id={id} className="field" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />;
+      return <input id={id} {...rtl} className="field" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />;
   }
 }
 

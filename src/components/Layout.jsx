@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import Logo from './Logo.jsx';
 import { useSettings } from '../lib/content.jsx';
+import { useI18n } from '../lib/i18n.jsx';
 import { isConfigured } from '../lib/supabase.js';
 import { safeUrl } from '../lib/util.js';
 
 const NAV = [
-  ['/about', 'About'],
-  ['/committees', 'Committees'],
-  ['/board', 'Executive Board'],
-  ['/delegates', 'Delegates'],
-  ['/staff', 'Join the Team'],
-  ['/sponsors', 'Sponsors'],
-  ['/contact', 'Contact'],
+  ['/about', 'nav.about'],
+  ['/committees', 'nav.committees'],
+  ['/board', 'nav.board'],
+  ['/delegates', 'nav.delegates'],
+  ['/staff', 'nav.staff'],
+  ['/sponsors', 'nav.sponsors'],
+  ['/contact', 'nav.contact'],
 ];
 
 function ScrollToTop() {
@@ -23,9 +24,25 @@ function ScrollToTop() {
   return null;
 }
 
+function LangButton({ className = '' }) {
+  const { t, toggle, lang } = useI18n();
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={t('lang.switchAria')}
+      lang={lang === 'ar' ? 'en' : 'ar'}
+      className={`rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:border-gold-400 hover:text-gold-300 ${className}`}
+    >
+      {t('lang.switchLabel')}
+    </button>
+  );
+}
+
 function Header() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const { t } = useI18n();
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -36,41 +53,45 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950/95 text-white backdrop-blur">
-      <div className="container-x flex h-16 items-center justify-between">
-        <Link to="/" aria-label="SYRMUN 2027 home">
+      <div className="container-x flex h-16 items-center justify-between gap-3">
+        <Link to="/" aria-label={t('nav.home')}>
           <Logo size={36} />
         </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
-          {NAV.map(([to, label]) => (
+        <nav className="hidden items-center gap-1 lg:flex" aria-label={t('nav.main')}>
+          {NAV.map(([to, key]) => (
             <NavLink key={to} to={to} className={link}>
-              {label}
+              {t(key)}
             </NavLink>
           ))}
-          <Link to="/register" className="btn-gold ml-3 !px-5 !py-2">
-            Register
+          <LangButton className="ms-2 !px-3 !py-1.5" />
+          <Link to="/register" className="btn-gold ms-2 !px-5 !py-2">
+            {t('nav.register')}
           </Link>
         </nav>
 
-        <button
-          type="button"
-          className="grid h-11 w-11 place-items-center rounded-lg border border-white/20 lg:hidden"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="relative block h-3.5 w-5">
-            <span className={`absolute left-0 h-0.5 w-5 bg-white transition ${open ? 'top-1.5 rotate-45' : 'top-0'}`} />
-            <span className={`absolute left-0 top-1.5 h-0.5 w-5 bg-white transition ${open ? 'opacity-0' : ''}`} />
-            <span className={`absolute left-0 h-0.5 w-5 bg-white transition ${open ? 'top-1.5 -rotate-45' : 'top-3'}`} />
-          </span>
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <LangButton className="!px-3 !py-2" />
+          <button
+            type="button"
+            className="grid h-11 w-11 place-items-center rounded-lg border border-white/20"
+            aria-label={open ? t('nav.closeMenu') : t('nav.openMenu')}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span className="relative block h-3.5 w-5">
+              <span className={`absolute start-0 h-0.5 w-5 bg-white transition ${open ? 'top-1.5 rotate-45' : 'top-0'}`} />
+              <span className={`absolute start-0 top-1.5 h-0.5 w-5 bg-white transition ${open ? 'opacity-0' : ''}`} />
+              <span className={`absolute start-0 h-0.5 w-5 bg-white transition ${open ? 'top-1.5 -rotate-45' : 'top-3'}`} />
+            </span>
+          </button>
+        </div>
       </div>
 
       {open && (
-        <nav className="border-t border-white/10 bg-navy-950 lg:hidden" aria-label="Mobile">
+        <nav className="border-t border-white/10 bg-navy-950 lg:hidden" aria-label={t('nav.mobile')}>
           <div className="container-x flex flex-col py-3">
-            {NAV.map(([to, label]) => (
+            {NAV.map(([to, key]) => (
               <NavLink
                 key={to}
                 to={to}
@@ -78,11 +99,11 @@ function Header() {
                   `border-b border-white/5 py-3 text-base font-medium ${isActive ? 'text-gold-300' : 'text-navy-100'}`
                 }
               >
-                {label}
+                {t(key)}
               </NavLink>
             ))}
             <Link to="/register" className="btn-gold my-4">
-              Register as a delegate
+              {t('nav.registerLong')}
             </Link>
           </div>
         </nav>
@@ -93,6 +114,7 @@ function Header() {
 
 function Footer() {
   const { settings } = useSettings();
+  const { t, st } = useI18n();
   const socials = [
     ['Instagram', settings.instagram_url],
     ['TikTok', settings.tiktok_url],
@@ -107,7 +129,7 @@ function Footer() {
         <div className="md:col-span-2">
           <Logo size={44} className="text-white" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-navy-200">
-            Syria Model United Nations — a two-day conference in {settings.venue_text}, {settings.conference_dates_text}.
+            {t('footer.about', { venue: st('venue_text'), dates: st('conference_dates_text') })}
           </p>
           {socials.length > 0 && (
             <div className="mt-5 flex flex-wrap gap-2">
@@ -127,12 +149,12 @@ function Footer() {
         </div>
 
         <div>
-          <h2 className="font-sans text-xs font-semibold uppercase tracking-widest text-gold-400">Explore</h2>
+          <h2 className="font-sans text-xs font-semibold uppercase tracking-widest text-gold-400">{t('footer.explore')}</h2>
           <ul className="mt-4 space-y-2 text-sm">
-            {[...NAV, ['/faq', 'FAQ'], ['/register', 'Register']].map(([to, label]) => (
+            {[...NAV, ['/faq', 'nav.faq'], ['/register', 'nav.register']].map(([to, key]) => (
               <li key={to}>
                 <Link to={to} className="transition hover:text-gold-300">
-                  {label}
+                  {t(key)}
                 </Link>
               </li>
             ))}
@@ -140,45 +162,44 @@ function Footer() {
         </div>
 
         <div>
-          <h2 className="font-sans text-xs font-semibold uppercase tracking-widest text-gold-400">Contact</h2>
+          <h2 className="font-sans text-xs font-semibold uppercase tracking-widest text-gold-400">{t('footer.contact')}</h2>
           <ul className="mt-4 space-y-2 text-sm">
-            <li>{settings.venue_text}</li>
+            <li>{st('venue_text')}</li>
             {settings.contact_email && (
               <li>
-                <a href={`mailto:${settings.contact_email}`} className="break-all transition hover:text-gold-300">
+                <a href={`mailto:${settings.contact_email}`} className="ltr-text break-all transition hover:text-gold-300">
                   {settings.contact_email}
                 </a>
               </li>
             )}
             <li>
               <Link to="/privacy" className="transition hover:text-gold-300">
-                Privacy
+                {t('footer.privacy')}
               </Link>
             </li>
           </ul>
         </div>
       </div>
       <div className="border-t border-white/10 py-5 text-center text-xs text-navy-300">
-        © {new Date().getFullYear()} SYRMUN. SYRMUN is an independent Model United Nations conference and is not affiliated with the United Nations.
+        {t('footer.copy', { year: new Date().getFullYear() })}
       </div>
     </footer>
   );
 }
 
 export default function Layout() {
+  const { t, dir, lang } = useI18n();
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col" dir={dir} lang={lang}>
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded focus:bg-gold-500 focus:px-4 focus:py-2 focus:text-navy-950"
+        className="sr-only focus:not-sr-only focus:absolute focus:start-3 focus:top-3 focus:z-50 focus:rounded focus:bg-gold-500 focus:px-4 focus:py-2 focus:text-navy-950"
       >
-        Skip to content
+        {t('layout.skip')}
       </a>
       <ScrollToTop />
       {!isConfigured && (
-        <div className="bg-gold-500 px-4 py-2 text-center text-xs font-semibold text-navy-950">
-          Preview mode — no database connected, sample content is shown and nothing is saved.
-        </div>
+        <div className="bg-gold-500 px-4 py-2 text-center text-xs font-semibold text-navy-950">{t('layout.preview')}</div>
       )}
       <Header />
       <main id="main" className="flex-1">
