@@ -2,19 +2,22 @@ import { useEffect, useState } from 'react';
 import { DEFAULT_SETTINGS } from '../lib/defaults.js';
 import { getRegistrationState, formatMoney } from '../lib/fees.js';
 import { supabase } from '../lib/supabase.js';
+import { fieldLabel, useA } from './adminI18n.js';
 import { SETTINGS_GROUPS } from './config.js';
 
 function Input({ field, value, onChange }) {
+  const { a } = useA();
   const id = `s_${field.key}`;
-  const rtl = field.arabic ? { dir: 'rtl', lang: 'ar' } : {};
+  // Arabic boxes are right-to-left; links, emails, numbers and dates are typed left-to-right.
+  const dirAttrs = field.arabic ? { dir: 'rtl', lang: 'ar' } : { dir: 'ltr' };
   if (field.type === 'textarea')
-    return <textarea id={id} rows={4} {...rtl} className="field" value={value} onChange={(e) => onChange(e.target.value)} />;
+    return <textarea id={id} rows={4} {...dirAttrs} className="field text-start" value={value} onChange={(e) => onChange(e.target.value)} />;
   if (field.type === 'select')
     return (
       <select id={id} className="field" value={value} onChange={(e) => onChange(e.target.value)}>
         {field.options.map(([v, l]) => (
           <option key={v} value={v}>
-            {l}
+            {a(l)}
           </option>
         ))}
       </select>
@@ -22,11 +25,11 @@ function Input({ field, value, onChange }) {
   return (
     <input
       id={id}
-      {...rtl}
+      {...dirAttrs}
       type={field.type === 'date' ? 'date' : field.type === 'number' ? 'number' : 'text'}
       min={field.type === 'number' ? 0 : undefined}
       step={field.type === 'number' ? '0.01' : undefined}
-      className="field"
+      className="field text-start"
       value={value}
       onChange={(e) => onChange(e.target.value)}
     />
@@ -34,6 +37,7 @@ function Input({ field, value, onChange }) {
 }
 
 export default function SettingsManager() {
+  const { a } = useA();
   const [values, setValues] = useState(null);
   const [saved, setSaved] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -58,7 +62,7 @@ export default function SettingsManager() {
       });
   }, []);
 
-  if (!values) return <p className="text-navy-600">{msg.text || 'Loading…'}</p>;
+  if (!values) return <p className="text-navy-600">{msg.text || a('Loading…')}</p>;
 
   const dirty = JSON.stringify(values) !== JSON.stringify(saved);
   const preview = getRegistrationState(values);
@@ -69,13 +73,13 @@ export default function SettingsManager() {
 
     const d = (k) => values[k] || '';
     const early = d('early_bird_ends'), regular = d('regular_ends'), closes = d('registration_closes'), opens = d('registration_opens');
-    if (opens && early && early < opens) return setMsg({ type: 'error', text: '“Early bird ends” is before “Registration opens”.' });
-    if (early && regular && regular < early) return setMsg({ type: 'error', text: '“Regular fee ends” is before “Early bird ends”.' });
-    if (regular && closes && closes < regular) return setMsg({ type: 'error', text: '“Registration closes” is before “Regular fee ends”.' });
-    if (early && !regular) return setMsg({ type: 'error', text: 'If you set an early bird end date you must also set “Regular fee ends”.' });
+    const fail = (text) => setMsg({ type: 'error', text: a(text) });
+    if (opens && early && early < opens) return fail('“Early bird ends” is before “Registration opens”.');
+    if (early && regular && regular < early) return fail('“Regular fee ends” is before “Early bird ends”.');
+    if (regular && closes && closes < regular) return fail('“Registration closes” is before “Regular fee ends”.');
+    if (early && !regular) return fail('If you set an early bird end date you must also set “Regular fee ends”.');
     for (const k of ['fee_early', 'fee_regular', 'fee_late']) {
-      if (values[k] === '' || Number.isNaN(Number(values[k])) || Number(values[k]) < 0)
-        return setMsg({ type: 'error', text: 'Fees must be numbers (0 or more).' });
+      if (values[k] === '' || Number.isNaN(Number(values[k])) || Number(values[k]) < 0) return fail('Fees must be numbers (0 or more).');
     }
 
     const rows = Object.entries(values).map(([key, value]) => ({ key, value: String(value ?? ''), updated_at: new Date().toISOString() }));
@@ -84,25 +88,27 @@ export default function SettingsManager() {
     setBusy(false);
     if (error) return setMsg({ type: 'error', text: error.message });
     setSaved(values);
-    setMsg({ type: 'ok', text: 'Saved. The website now uses these settings.' });
+    setMsg({ type: 'ok', text: a('Saved. The website now uses these settings.') });
   }
+
+  const saveLabel = busy ? a('Saving…') : dirty ? a('Save changes') : a('No changes');
 
   return (
     <form onSubmit={save} className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold text-navy-950">Settings & fees</h1>
+        <h1 className="text-3xl font-bold text-navy-950">{a('Settings & fees')}</h1>
         <button type="submit" className="btn-gold" disabled={busy || !dirty}>
-          {busy ? 'Saving…' : dirty ? 'Save changes' : 'No changes'}
+          {saveLabel}
         </button>
       </div>
 
       <div className="rounded-2xl border border-gold-500/40 bg-gold-100/50 p-4 text-sm text-navy-900">
-        <strong>Right now (based on today’s date and the values below):</strong>{' '}
+        <strong>{a('Right now (based on today’s date and the values below):')}</strong>{' '}
         {preview.state === 'open'
-          ? `registration is OPEN — ${preview.label} fee, ${formatMoney(preview.amount)}.`
+          ? a('registration is OPEN — {x} fee, {y}.', { x: a(preview.label), y: formatMoney(preview.amount) })
           : preview.state === 'closed'
-            ? 'registration is CLOSED.'
-            : 'registration is NOT OPEN yet.'}
+            ? a('registration is CLOSED.')
+            : a('registration is NOT OPEN yet.')}
       </div>
 
       {msg.text && (
@@ -113,16 +119,16 @@ export default function SettingsManager() {
 
       {SETTINGS_GROUPS.map((g) => (
         <section key={g.title} className="rounded-2xl border border-navy-100 bg-white p-6 shadow-soft">
-          <h2 className="text-xl font-bold text-navy-950">{g.title}</h2>
-          {g.note && <p className="mt-1 text-sm text-navy-600">{g.note}</p>}
+          <h2 className="text-xl font-bold text-navy-950">{a(g.title)}</h2>
+          {g.note && <p className="mt-1 text-sm text-navy-600">{a(g.note)}</p>}
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             {g.fields.map((f) => (
               <div key={f.key} className={f.type === 'textarea' ? 'md:col-span-2' : ''}>
                 <label htmlFor={`s_${f.key}`} className="label">
-                  {f.label}
+                  {fieldLabel(a, f)}
                 </label>
                 <Input field={f} value={values[f.key]} onChange={(v) => setValues((s) => ({ ...s, [f.key]: v }))} />
-                {f.help && <p className="mt-1 text-xs text-navy-500">{f.help}</p>}
+                {f.help && <p className="mt-1 text-xs text-navy-500">{a(f.help)}</p>}
               </div>
             ))}
           </div>
@@ -131,7 +137,7 @@ export default function SettingsManager() {
 
       <div className="flex justify-end">
         <button type="submit" className="btn-gold" disabled={busy || !dirty}>
-          {busy ? 'Saving…' : dirty ? 'Save changes' : 'No changes'}
+          {saveLabel}
         </button>
       </div>
     </form>

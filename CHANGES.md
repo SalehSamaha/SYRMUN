@@ -1,5 +1,11 @@
 # SYRMUN website — changes
 
+## v1.1.2 — 2026-10-16
+- **Admin panel in Arabic too.** A language button (العربية / English) sits in the admin header and on the sign-in screen. Arabic switches the whole panel to right-to-left: menus, tables, applications, status/payment, content forms, settings, messages. The choice is shared with the public site and remembered.
+- English-only fields (names, links, emails, numbers) are still typed left-to-right inside the Arabic panel; the "— Arabic" boxes are right-to-left.
+- Applications you receive keep whatever language the applicant typed. CSV downloads keep English column names and values so spreadsheets stay consistent.
+- Tests: `tests/admin-i18n.test.js` fails the build if any admin label has no Arabic translation. Admin Arabic text is in `src/admin/adminDict.js` (anything missing just shows in English).
+
 ## v1.1.1 — 2026-10-16
 - New logo (the laurel-and-temple SYR MUN badge) in the header, home hero, admin panel, browser tab icon and phone/app icons (`public/logo.png`, `favicon.png`, `icon-192.png`, `icon-512.png`). Old SVG logo removed.
 - To change it again later, replace those four PNG files (keep the names).

@@ -217,19 +217,18 @@ const AR_SETTINGS = [
   'about_mission', 'about_vision', 'about_goals', 'what_is_mun', 'who_can_participate',
   'what_happens', 'what_to_prepare', 'dress_code', 'what_delegates_receive',
 ];
-const arLabel = (l) => `${l} — Arabic (العربية)`;
 
 Object.entries(AR_CONTENT).forEach(([table, names]) => {
   CONTENT[table].fields = CONTENT[table].fields.flatMap((f) =>
     names.includes(f.name)
-      ? [f, { ...f, name: `${f.name}_ar`, label: arLabel(f.label), required: false, help: undefined, arabic: true }]
+      ? [f, { ...f, name: `${f.name}_ar`, baseLabel: f.label, required: false, help: undefined, arabic: true }]
       : [f],
   );
 });
 SETTINGS_GROUPS.forEach((g) => {
   g.fields = g.fields.flatMap((f) =>
     AR_SETTINGS.includes(f.key)
-      ? [f, { ...f, key: `${f.key}_ar`, label: arLabel(f.label), help: undefined, arabic: true }]
+      ? [f, { ...f, key: `${f.key}_ar`, baseLabel: f.label, help: undefined, arabic: true }]
       : [f],
   );
 });
