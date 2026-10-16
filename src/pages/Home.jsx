@@ -36,7 +36,7 @@ export default function Home() {
             </span>
             <span className="rounded-full border border-white/20 px-4 py-1.5 text-navy-100">{st('conference_dates_text')}</span>
           </div>
-          <img src="/logo.svg" alt="" width="72" height="72" className="mt-8 h-16 w-16 sm:h-[72px] sm:w-[72px]" />
+          <img src="/logo.png" alt="" width="112" height="112" className="mt-8 h-24 w-24 sm:h-28 sm:w-28" />
           <h1 className="mt-6 text-5xl font-extrabold leading-[1.05] sm:text-7xl" dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left' }}>
             SYRMUN <span className="text-gold-400">2027</span>
           </h1>

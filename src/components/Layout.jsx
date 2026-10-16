@@ -55,7 +55,7 @@ function Header() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950/95 text-white backdrop-blur">
       <div className="container-x flex h-16 items-center justify-between gap-3">
         <Link to="/" aria-label={t('nav.home')}>
-          <Logo size={36} />
+          <Logo size={44} />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label={t('nav.main')}>

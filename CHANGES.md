@@ -1,5 +1,9 @@
 # SYRMUN website — changes
 
+## v1.1.1 — 2026-10-16
+- New logo (the laurel-and-temple SYR MUN badge) in the header, home hero, admin panel, browser tab icon and phone/app icons (`public/logo.png`, `favicon.png`, `icon-192.png`, `icon-512.png`). Old SVG logo removed.
+- To change it again later, replace those four PNG files (keep the names).
+
 ## v1.1.0 — 2026-10-15
 
 **Dates**

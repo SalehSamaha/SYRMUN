@@ -31,7 +31,7 @@ function Login() {
 
   return (
     <Centered>
-      <img src="/logo.svg" alt="" width="48" height="48" />
+      <img src="/logo.png" alt="" width="48" height="48" />
       <h1 className="mt-4 text-2xl font-bold text-navy-950">SYRMUN admin</h1>
       <p className="mt-1 text-sm text-navy-600">Sign in with your organiser account.</p>
       <form onSubmit={submit} className="mt-6 space-y-4">
@@ -141,7 +141,7 @@ function AdminLayout({ email }) {
       <header className="bg-navy-950 text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="" width="32" height="32" />
+            <img src="/logo.png" alt="" width="32" height="32" />
             <span className="font-serif text-lg font-bold">SYRMUN admin</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
