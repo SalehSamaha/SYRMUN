@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, Route, Routes, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
+import { Icon } from '../components/art.jsx';
+import { useTheme } from '../lib/theme.jsx';
 import { useA } from './adminI18n.js';
 import { CONTENT } from './config.js';
 import ApplicationsManager from './ApplicationsManager.jsx';
@@ -22,12 +24,24 @@ function LangButton({ className = '' }) {
   );
 }
 
+function ThemeButton({ className = '' }) {
+  const { a } = useA();
+  const { isDark, toggle } = useTheme();
+  const label = isDark ? a('Switch to light mode') : a('Switch to dark mode');
+  return (
+    <button type="button" onClick={toggle} aria-label={label} title={label} className={`grid h-9 w-9 place-items-center rounded-lg border ${className}`}>
+      <Icon name={isDark ? 'sun' : 'moon'} className="h-[18px] w-[18px]" />
+    </button>
+  );
+}
+
 function Centered({ children }) {
   const { dir, lang } = useA();
   return (
     <div className="grid min-h-screen place-items-center bg-navy-50 px-4" dir={dir} lang={lang}>
       <div className="w-full max-w-md rounded-2xl border border-navy-100 bg-white p-8 shadow-soft">
-        <div className="mb-4 flex justify-end">
+        <div className="mb-4 flex justify-end gap-2">
+          <ThemeButton className="border-navy-200 text-navy-800" />
           <LangButton className="border-navy-200 text-navy-800" />
         </div>
         {children}
@@ -173,6 +187,7 @@ function AdminLayout({ email }) {
             <Link to="/" target="_blank" className="text-navy-200 hover:text-white">
               {a('View site ↗')}
             </Link>
+            <ThemeButton className="border-white/30 text-white hover:border-gold-400" />
             <LangButton className="border-white/30 text-white hover:border-gold-400" />
             <span className="hidden text-navy-300 sm:inline" dir="ltr">{email}</span>
             <button type="button" className="rounded-lg border border-white/30 px-3 py-1.5 hover:border-gold-400" onClick={() => supabase.auth.signOut()}>

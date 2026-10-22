@@ -46,6 +46,8 @@ export const AR = {
   'Delete this permanently? This cannot be undone.': 'هل تريد الحذف نهائيًا؟ لا يمكن التراجع عن ذلك.',
   ' — Arabic (العربية)': ' — بالعربية',
   'Language': 'اللغة',
+  'Switch to dark mode': 'التبديل إلى الوضع الداكن',
+  'Switch to light mode': 'التبديل إلى الوضع الفاتح',
   ', ': '، ',
   'English': 'English',
 

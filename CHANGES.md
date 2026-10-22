@@ -1,3 +1,12 @@
+# Changes
+
+## v1.2.0 — Visuals, dark mode, rotating hero background
+- **Light / dark mode**: sun/moon button in the header (site and admin). Default is light; choice is remembered (`syrmun_theme`) and applied before first paint (no flash).
+- **Rotating hero background**: 4 SVG scenes (star pattern, globe, Damascus skyline, colonnade) cross-fade every 9 s, with slow continuous rotation on the star/globe, clickable dots, mirrored in Arabic, and disabled under "reduce motion".
+- **Visual polish**: icons for the "why" and "experience" cards, stats strip (fees from settings), patterned sections/footer, glass cards, hover lift, floating logo.
+- Accessibility: contrast checked on all public pages in light/dark and EN/AR (0 failures); gold eyebrow text darkened in light mode; mobile header fits at 320 px.
+- No database changes — no SQL to run.
+
 # SYRMUN website — changes
 
 ## v1.1.2 — 2026-10-16

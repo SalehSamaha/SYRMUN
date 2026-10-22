@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Icon } from './art.jsx';
 import Logo from './Logo.jsx';
 import { useSettings } from '../lib/content.jsx';
 import { useI18n } from '../lib/i18n.jsx';
 import { isConfigured } from '../lib/supabase.js';
+import { useTheme } from '../lib/theme.jsx';
 import { safeUrl } from '../lib/util.js';
 
 const NAV = [
@@ -39,6 +41,23 @@ function LangButton({ className = '' }) {
   );
 }
 
+function ThemeButton({ className = '' }) {
+  const { t } = useI18n();
+  const { isDark, toggle } = useTheme();
+  const label = isDark ? t('theme.toLight') : t('theme.toDark');
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={label}
+      title={label}
+      className={`grid h-9 w-9 place-items-center rounded-full border border-white/30 text-white transition hover:border-gold-400 hover:text-gold-300 ${className}`}
+    >
+      <Icon name={isDark ? 'sun' : 'moon'} className="h-[18px] w-[18px]" />
+    </button>
+  );
+}
+
 function Header() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
@@ -53,9 +72,9 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950/95 text-white backdrop-blur">
-      <div className="container-x flex h-16 items-center justify-between gap-3">
+      <div className="container-x flex h-16 items-center justify-between gap-2">
         <Link to="/" aria-label={t('nav.home')}>
-          <Logo size={44} />
+          <Logo size={40} />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label={t('nav.main')}>
@@ -65,16 +84,18 @@ function Header() {
             </NavLink>
           ))}
           <LangButton className="ms-2 !px-3 !py-1.5" />
+          <ThemeButton className="ms-1" />
           <Link to="/register" className="btn-gold ms-2 !px-5 !py-2">
             {t('nav.register')}
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2 lg:hidden">
-          <LangButton className="!px-3 !py-2" />
+        <div className="flex items-center gap-1.5 lg:hidden">
+          <LangButton className="!px-2.5 !py-2" />
+          <ThemeButton />
           <button
             type="button"
-            className="grid h-11 w-11 place-items-center rounded-lg border border-white/20"
+            className="grid h-10 w-10 place-items-center rounded-lg border border-white/20"
             aria-label={open ? t('nav.closeMenu') : t('nav.openMenu')}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -124,7 +145,7 @@ function Footer() {
   ].filter(([, url]) => safeUrl(url));
 
   return (
-    <footer className="bg-navy-950 text-navy-100">
+    <footer className="pattern-gold bg-navy-950 text-navy-100">
       <div className="container-x grid gap-10 py-14 md:grid-cols-4">
         <div className="md:col-span-2">
           <Logo size={44} className="text-white" />

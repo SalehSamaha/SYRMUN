@@ -1,16 +1,27 @@
 import { Link } from 'react-router-dom';
+import { HeroBackground, Icon } from '../components/art.jsx';
 import Countdown from '../components/Countdown.jsx';
 import Reveal from '../components/Reveal.jsx';
 import BoardCard from '../components/BoardCard.jsx';
 import { EmptyState, FaqList, SectionHeading } from '../components/ui.jsx';
 import { useRows, useSettings } from '../lib/content.jsx';
-import { getRegistrationState } from '../lib/fees.js';
+import { formatMoney, getFeeTable, getRegistrationState } from '../lib/fees.js';
 import { useI18n } from '../lib/i18n.jsx';
 import { dateLocale } from '../lib/translations.js';
 import { lines, usePageMeta } from '../lib/util.js';
 
-const WHY = ['why.1', 'why.2', 'why.3', 'why.4'];
-const EXPERIENCE = ['exp.1', 'exp.2', 'exp.3', 'exp.4'];
+const WHY = [
+  ['why.1', 'mic'],
+  ['why.2', 'heart'],
+  ['why.3', 'tag'],
+  ['why.4', 'scale'],
+];
+const EXPERIENCE = [
+  ['exp.1', 'calendar'],
+  ['exp.2', 'book'],
+  ['exp.3', 'users'],
+  ['exp.4', 'pin'],
+];
 
 export default function Home() {
   const { settings } = useSettings();
@@ -20,6 +31,13 @@ export default function Home() {
   const faqs = useRows('faqs');
   const news = useRows('announcements', { orderBy: 'created_at', ascending: false });
   const reg = getRegistrationState(settings);
+  const lowestFee = Math.min(...getFeeTable(settings).map((f) => f.amount).filter((n) => Number.isFinite(n)));
+  const stats = [
+    ['calendar', '2', t('stats.days')],
+    ['users', '40–60', t('stats.delegates')],
+    ['pin', t('stats.cityVal'), t('stats.city')],
+    ['dollar', Number.isFinite(lowestFee) ? formatMoney(lowestFee) : '—', t('stats.fees')],
+  ];
 
   usePageMeta(null, t('home.metaDesc'));
 
@@ -28,17 +46,18 @@ export default function Home() {
   return (
     <>
       {/* HERO */}
-      <section className="hero-bg text-white">
-        <div className="container-x py-20 sm:py-28">
+      <section className="hero-bg relative overflow-hidden text-white">
+        <HeroBackground dots />
+        <div className="container-x relative z-10 py-20 sm:py-28">
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <span className="rounded-full border border-gold-500/50 bg-gold-500/10 px-4 py-1.5 font-medium text-gold-300">
               {st('venue_text')}
             </span>
             <span className="rounded-full border border-white/20 px-4 py-1.5 text-navy-100">{st('conference_dates_text')}</span>
           </div>
-          <img src="/logo.png" alt="" width="112" height="112" className="mt-8 h-24 w-24 sm:h-28 sm:w-28" />
+          <img src="/logo.png" alt="" width="112" height="112" className="logo-float mt-8 h-24 w-24 sm:h-28 sm:w-28" />
           <h1 className="mt-6 text-5xl font-extrabold leading-[1.05] sm:text-7xl" dir="ltr" style={{ textAlign: lang === 'ar' ? 'right' : 'left' }}>
-            SYRMUN <span className="text-gold-400">2027</span>
+            SYRMUN <span className="text-gold-gradient">2027</span>
           </h1>
           <p className="mt-2 font-serif text-xl text-navy-100 sm:text-2xl">{t('hero.sub')}</p>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-navy-100">
@@ -55,6 +74,19 @@ export default function Home() {
           <div className="mt-12">
             <Countdown date={settings.conference_start} />
           </div>
+          <dl className="mt-10 grid grid-cols-2 gap-3 pb-6 sm:grid-cols-4">
+            {stats.map(([icon, value, label]) => (
+              <div key={label} className="glass flex items-center gap-3 rounded-2xl px-4 py-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gold-500/15 text-gold-300">
+                  <Icon name={icon} className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <dd className="truncate font-serif text-lg font-bold leading-tight text-white">{value}</dd>
+                  <dt className="truncate text-xs text-navy-100">{label}</dt>
+                </div>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
@@ -87,9 +119,12 @@ export default function Home() {
         <div className="container-x">
           <SectionHeading eyebrow={t('home.what.eyebrow')} title={t('home.what.title')} intro={t('home.what.intro')} />
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {WHY.map((k, i) => (
+            {WHY.map(([k, icon], i) => (
               <Reveal key={k} delay={i * 80}>
-                <div className="card h-full border-t-4 border-t-gold-500">
+                <div className="card card-lift h-full border-t-4 border-t-gold-500">
+                  <span className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-navy-900 text-gold-300 shadow-soft">
+                    <Icon name={icon} />
+                  </span>
                   <h3 className="text-lg font-bold text-navy-950">{t(`${k}.t`)}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-navy-700">{t(`${k}.d`)}</p>
                 </div>
@@ -100,7 +135,7 @@ export default function Home() {
       </section>
 
       {/* COMMITTEES */}
-      <section className="bg-navy-50 py-20">
+      <section className="pattern-bg bg-navy-50 py-20">
         <div className="container-x">
           <SectionHeading eyebrow={t('common.committees')} title={t('home.committees.title')} />
           <div className="mt-10">
@@ -140,11 +175,11 @@ export default function Home() {
         <div className="container-x">
           <SectionHeading eyebrow={t('exp.eyebrow')} title={t('exp.title')} center />
           <div className="mt-12 grid gap-6 sm:grid-cols-2">
-            {EXPERIENCE.map((k, i) => (
+            {EXPERIENCE.map(([k, icon], i) => (
               <Reveal key={k} delay={i * 70}>
-                <div className="flex gap-4 rounded-2xl border border-navy-100 p-6">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-navy-900 font-serif font-bold text-gold-300">
-                    {i + 1}
+                <div className="card-lift flex gap-4 rounded-2xl border border-navy-100 bg-white p-6 shadow-soft">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-navy-900 text-gold-300">
+                    <Icon name={icon} />
                   </span>
                   <div>
                     <h3 className="text-lg font-bold text-navy-950">{t(`${k}.t`)}</h3>
@@ -163,7 +198,7 @@ export default function Home() {
       </section>
 
       {/* BOARD */}
-      <section className="bg-navy-50 py-20">
+      <section className="pattern-bg bg-navy-50 py-20">
         <div className="container-x">
           <SectionHeading eyebrow={t('common.execBoard')} title={t('home.board.title')} />
           <div className="mt-10">
