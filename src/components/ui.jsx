@@ -1,12 +1,11 @@
 import Reveal from './Reveal.jsx';
 import { useI18n } from '../lib/i18n.jsx';
-import { HeroBackground, Ornament } from './art.jsx';
+import { Ornament } from './art.jsx';
 
 /** Navy banner at the top of inner pages. */
 export function PageHero({ eyebrow, title, intro }) {
   return (
     <section className="hero-bg relative overflow-hidden text-white">
-      <HeroBackground />
       <div className="container-x relative z-10 py-16 sm:py-20">
         {eyebrow && <p className="eyebrow !text-gold-400">{eyebrow}</p>}
         <h1 className="mt-3 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">{title}</h1>

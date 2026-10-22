@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { HeroBackground, Icon } from '../components/art.jsx';
+import { Icon } from '../components/art.jsx';
 import Countdown from '../components/Countdown.jsx';
 import Reveal from '../components/Reveal.jsx';
 import BoardCard from '../components/BoardCard.jsx';
@@ -47,7 +47,6 @@ export default function Home() {
     <>
       {/* HERO */}
       <section className="hero-bg relative overflow-hidden text-white">
-        <HeroBackground dots />
         <div className="container-x relative z-10 py-20 sm:py-28">
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <span className="rounded-full border border-gold-500/50 bg-gold-500/10 px-4 py-1.5 font-medium text-gold-300">

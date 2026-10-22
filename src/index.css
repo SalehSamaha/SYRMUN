@@ -8,7 +8,8 @@
     -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-white font-sans text-navy-900 antialiased;
+    background-color: #070e1c;
+    @apply font-sans text-navy-900 antialiased;
   }
   h1,
   h2,
@@ -113,12 +114,9 @@
 }
 
 .hero-bg {
-  background-color: #0a1426;
-  background-image: radial-gradient(60% 50% at 80% 0%, rgba(201, 162, 75, 0.22), transparent 70%),
-    radial-gradient(50% 60% at 0% 100%, rgba(59, 97, 160, 0.35), transparent 70%),
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: auto, auto, 44px 44px, 44px 44px;
+  background-color: rgba(7, 14, 28, 0.28);
+  background-image: radial-gradient(60% 50% at 80% 0%, rgba(201, 162, 75, 0.14), transparent 70%),
+    radial-gradient(50% 60% at 0% 100%, rgba(59, 97, 160, 0.22), transparent 70%);
 }
 
 /* ================================================================== *
@@ -286,23 +284,37 @@
 }
 .dark body {
   background-color: #070e1c;
+  background-image: radial-gradient(120% 80% at 50% 0%, #10213f 0%, rgba(7, 14, 28, 0) 70%),
+    radial-gradient(90% 60% at 50% 100%, #0b1830 0%, rgba(7, 14, 28, 0) 70%);
+  background-attachment: fixed;
   color: #d3def0;
 }
+.dark {
+  background-color: #070e1c;
+}
 .dark .bg-white,
-.dark .card,
+.dark .card {
+  background-color: rgba(13, 24, 46, 0.66);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(201, 162, 75, 0.18);
+}
 .dark .field {
-  background-color: #0e1a30;
+  background-color: rgba(8, 16, 32, 0.8);
 }
 .dark .bg-navy-50,
 .dark .bg-navy-50\/50,
 .dark .bg-navy-50\/60 {
-  background-color: #0a1426;
+  background-color: rgba(8, 16, 32, 0.3);
+}
+.dark section.bg-navy-50 {
+  background-color: rgba(8, 16, 32, 0.22);
 }
 .dark .bg-gold-100\/30,
 .dark .bg-gold-100\/40,
 .dark .bg-gold-100\/50,
 .dark .bg-gold-100\/60 {
-  background-color: rgba(201, 162, 75, 0.12);
+  background-color: rgba(201, 162, 75, 0.06);
 }
 .dark .bg-navy-900 {
   background-color: #1b3158;
@@ -407,4 +419,92 @@
 }
 .dark .eyebrow {
   color: #dcbd6e;
+}
+
+
+/* ================================================================== *
+ *  v1.3  one navy look: globe stage, shimmer, scroll effects
+ * ================================================================== */
+.progress-line {
+  background: linear-gradient(90deg, #8a6a1f, #e6cf94, #c9a24b);
+  box-shadow: 0 0 10px rgba(222, 184, 92, 0.8);
+  will-change: transform;
+}
+.footer-glass {
+  background: linear-gradient(180deg, rgba(7, 14, 28, 0.55), rgba(7, 14, 28, 0.92));
+  border-top: 1px solid rgba(201, 162, 75, 0.28);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+/* Metallic light sweep across gold headings (same idea as West MUN) */
+.text-gold-gradient {
+  background: linear-gradient(110deg, #b58a2e 0%, #e6cf94 30%, #fff6d8 50%, #e6cf94 70%, #b58a2e 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sy-sweep 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes sy-sweep {
+  0% {
+    background-position: 170% 0;
+  }
+  35%,
+  100% {
+    background-position: -70% 0;
+  }
+}
+/* Headings rise a little further and with a soft blur, then settle */
+.reveal {
+  filter: blur(6px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.in {
+  filter: none;
+}
+/* Cards: gold edge glow and light lift on hover */
+.dark .card-lift:hover,
+.dark .bg-white:hover {
+  box-shadow: 0 0 0 1px rgba(222, 184, 92, 0.45), 0 18px 40px -16px rgba(222, 184, 92, 0.28);
+}
+/* A hairline of gold under each eyebrow label */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.eyebrow::before {
+  content: '';
+  width: 1.75rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #dcbd6e);
+}
+.btn-gold {
+  position: relative;
+  overflow: hidden;
+}
+.btn-gold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.55) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+.btn-gold:hover::after {
+  transform: translateX(120%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-gold-gradient {
+    animation: none;
+    background-position: 50% 0;
+  }
+  .reveal {
+    filter: none;
+  }
+}
+
+html, body {
+  overflow-x: clip;
 }

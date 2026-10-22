@@ -1,5 +1,12 @@
 # Changes
 
+## v1.3.0 — Golden globe stage, one navy look
+- **Golden globe** fixed in the centre of the window on every public page; it turns as you scroll (and drifts when you stop), glows brighter when you scroll fast, and has two orbiting satellites. Drawn on one canvas, still for "reduce motion".
+- **Gold dust** particles with parallax, and a **gold scroll-progress line** at the top.
+- **One colour: navy.** The light/dark toggle and the rotating scenes from v1.2 are removed. Cards are frosted glass so the globe shows through; footer and sections are translucent.
+- Effects inspired by West MUN: metallic shimmer sweep on the gold "2027", blur-to-sharp reveal on scroll, gold edge glow on card hover, light sweep on gold buttons, gold hairline before section labels.
+- Fixed: mobile menu icon, 1px sideways overflow in Arabic. No database changes.
+
 ## v1.2.0 — Visuals, dark mode, rotating hero background
 - **Light / dark mode**: sun/moon button in the header (site and admin). Default is light; choice is remembered (`syrmun_theme`) and applied before first paint (no flash).
 - **Rotating hero background**: 4 SVG scenes (star pattern, globe, Damascus skyline, colonnade) cross-fade every 9 s, with slow continuous rotation on the star/globe, clickable dots, mirrored in Arabic, and disabled under "reduce motion".

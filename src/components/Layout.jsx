@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Icon } from './art.jsx';
+import GlobeStage from './GlobeStage.jsx';
 import Logo from './Logo.jsx';
 import { useSettings } from '../lib/content.jsx';
 import { useI18n } from '../lib/i18n.jsx';
 import { isConfigured } from '../lib/supabase.js';
-import { useTheme } from '../lib/theme.jsx';
 import { safeUrl } from '../lib/util.js';
 
 const NAV = [
@@ -41,23 +40,6 @@ function LangButton({ className = '' }) {
   );
 }
 
-function ThemeButton({ className = '' }) {
-  const { t } = useI18n();
-  const { isDark, toggle } = useTheme();
-  const label = isDark ? t('theme.toLight') : t('theme.toDark');
-  return (
-    <button
-      type="button"
-      onClick={toggle}
-      aria-label={label}
-      title={label}
-      className={`grid h-9 w-9 place-items-center rounded-full border border-white/30 text-white transition hover:border-gold-400 hover:text-gold-300 ${className}`}
-    >
-      <Icon name={isDark ? 'sun' : 'moon'} className="h-[18px] w-[18px]" />
-    </button>
-  );
-}
-
 function Header() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
@@ -84,7 +66,6 @@ function Header() {
             </NavLink>
           ))}
           <LangButton className="ms-2 !px-3 !py-1.5" />
-          <ThemeButton className="ms-1" />
           <Link to="/register" className="btn-gold ms-2 !px-5 !py-2">
             {t('nav.register')}
           </Link>
@@ -92,7 +73,6 @@ function Header() {
 
         <div className="flex items-center gap-1.5 lg:hidden">
           <LangButton className="!px-2.5 !py-2" />
-          <ThemeButton />
           <button
             type="button"
             className="grid h-10 w-10 place-items-center rounded-lg border border-white/20"
@@ -101,9 +81,9 @@ function Header() {
             onClick={() => setOpen((v) => !v)}
           >
             <span className="relative block h-3.5 w-5">
-              <span className={`absolute start-0 h-0.5 w-5 bg-white transition ${open ? 'top-1.5 rotate-45' : 'top-0'}`} />
-              <span className={`absolute start-0 top-1.5 h-0.5 w-5 bg-white transition ${open ? 'opacity-0' : ''}`} />
-              <span className={`absolute start-0 h-0.5 w-5 bg-white transition ${open ? 'top-1.5 -rotate-45' : 'top-3'}`} />
+              <span className={`absolute start-0 h-0.5 w-5 bg-[#ffffff] transition ${open ? 'top-1.5 rotate-45' : 'top-0'}`} />
+              <span className={`absolute start-0 top-1.5 h-0.5 w-5 bg-[#ffffff] transition ${open ? 'opacity-0' : ''}`} />
+              <span className={`absolute start-0 h-0.5 w-5 bg-[#ffffff] transition ${open ? 'top-1.5 -rotate-45' : 'top-3'}`} />
             </span>
           </button>
         </div>
@@ -145,7 +125,7 @@ function Footer() {
   ].filter(([, url]) => safeUrl(url));
 
   return (
-    <footer className="pattern-gold bg-navy-950 text-navy-100">
+    <footer className="footer-glass relative z-10 text-navy-100">
       <div className="container-x grid gap-10 py-14 md:grid-cols-4">
         <div className="md:col-span-2">
           <Logo size={44} className="text-white" />
@@ -211,7 +191,8 @@ function Footer() {
 export default function Layout() {
   const { t, dir, lang } = useI18n();
   return (
-    <div className="flex min-h-screen flex-col" dir={dir} lang={lang}>
+    <div className="relative flex min-h-screen flex-col" dir={dir} lang={lang}>
+      <GlobeStage />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:start-3 focus:top-3 focus:z-50 focus:rounded focus:bg-gold-500 focus:px-4 focus:py-2 focus:text-navy-950"
@@ -223,7 +204,7 @@ export default function Layout() {
         <div className="bg-gold-500 px-4 py-2 text-center text-xs font-semibold text-navy-950">{t('layout.preview')}</div>
       )}
       <Header />
-      <main id="main" className="flex-1">
+      <main id="main" className="relative z-10 flex-1">
         <Outlet />
       </main>
       <Footer />
