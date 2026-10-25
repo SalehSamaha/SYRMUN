@@ -119,121 +119,8 @@
     radial-gradient(50% 60% at 0% 100%, rgba(59, 97, 160, 0.22), transparent 70%);
 }
 
-/* ================================================================== *
- *  Rotating hero background
- * ================================================================== */
-.sy-scene {
-  opacity: 0;
-  transition: opacity 1.8s ease;
-}
-.sy-scene.is-active {
-  opacity: 1;
-}
-[dir='rtl'] .sy-scene {
-  transform: scaleX(-1); /* keep the artwork away from the text */
-}
-.sy-kenburns {
-  transform-origin: 60% 50%;
-}
-.sy-scene.is-active .sy-kenburns {
-  animation: sy-kenburns 22s ease-in-out infinite alternate;
-}
-.hero-scrim {
-  background: linear-gradient(90deg, rgba(10, 20, 38, 0.88) 0%, rgba(10, 20, 38, 0.6) 42%, rgba(10, 20, 38, 0.12) 100%);
-}
-[dir='rtl'] .hero-scrim {
-  transform: scaleX(-1);
-}
-@media (max-width: 767px) {
-  .hero-scrim {
-    background: linear-gradient(180deg, rgba(10, 20, 38, 0.7), rgba(10, 20, 38, 0.82));
-  }
-  [dir='rtl'] .hero-scrim {
-    transform: none;
-  }
-}
-.sy-spin-slow {
-  animation: sy-spin 260s linear infinite;
-}
-.sy-spin-med {
-  animation: sy-spin 70s linear infinite;
-  transform-origin: 0 0;
-}
-.sy-meridian {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: sy-meridian 16s linear infinite;
-}
-.sy-twinkle {
-  animation: sy-twinkle 4s ease-in-out infinite;
-}
-.sy-breathe {
-  animation: sy-breathe 9s ease-in-out infinite;
-}
-@keyframes sy-kenburns {
-  from {
-    transform: scale(1) translate3d(0, 0, 0);
-  }
-  to {
-    transform: scale(1.09) translate3d(-1.2%, -1%, 0);
-  }
-}
-@keyframes sy-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes sy-meridian {
-  from {
-    transform: scaleX(1);
-  }
-  to {
-    transform: scaleX(-1);
-  }
-}
-@keyframes sy-twinkle {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-@keyframes sy-breathe {
-  0%,
-  100% {
-    opacity: 0.8;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-@keyframes sy-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
 .logo-float {
-  animation: sy-float 6s ease-in-out infinite;
   filter: drop-shadow(0 8px 28px rgba(201, 162, 75, 0.35));
-}
-@media (prefers-reduced-motion: reduce) {
-  .sy-scene,
-  .sy-scene.is-active .sy-kenburns,
-  .sy-spin-slow,
-  .sy-spin-med,
-  .sy-meridian,
-  .sy-twinkle,
-  .sy-breathe,
-  .logo-float {
-    animation: none !important;
-    transition: none !important;
-  }
 }
 
 /* Gold gradient text */
@@ -248,8 +135,6 @@
 .glass {
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 /* Subtle eight-point-star lattice for light sections */
@@ -294,9 +179,7 @@
 }
 .dark .bg-white,
 .dark .card {
-  background-color: rgba(13, 24, 46, 0.66);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(13, 24, 46, 0.8);
   border-color: rgba(201, 162, 75, 0.18);
 }
 .dark .field {
@@ -431,37 +314,22 @@
   will-change: transform;
 }
 .footer-glass {
-  background: linear-gradient(180deg, rgba(7, 14, 28, 0.55), rgba(7, 14, 28, 0.92));
+  background: linear-gradient(180deg, rgba(7, 14, 28, 0.7), rgba(7, 14, 28, 0.94));
   border-top: 1px solid rgba(201, 162, 75, 0.28);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
-/* Metallic light sweep across gold headings (same idea as West MUN) */
+/* Metallic light sweep across gold headings. It travels with the scroll (GlobeStage sets
+   background-position), so it never animates while the page is still. */
 .text-gold-gradient {
   background: linear-gradient(110deg, #b58a2e 0%, #e6cf94 30%, #fff6d8 50%, #e6cf94 70%, #b58a2e 100%);
   background-size: 260% 100%;
+  background-position: 50% 0;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: sy-sweep 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-@keyframes sy-sweep {
-  0% {
-    background-position: 170% 0;
-  }
-  35%,
-  100% {
-    background-position: -70% 0;
-  }
 }
 /* Headings rise a little further and with a soft blur, then settle */
 .reveal {
-  filter: blur(6px);
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.reveal.in {
-  filter: none;
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 /* Cards: gold edge glow and light lift on hover */
 .dark .card-lift:hover,
@@ -495,15 +363,7 @@
 .btn-gold:hover::after {
   transform: translateX(120%);
 }
-@media (prefers-reduced-motion: reduce) {
-  .text-gold-gradient {
-    animation: none;
-    background-position: 50% 0;
-  }
-  .reveal {
-    filter: none;
-  }
-}
+
 
 html, body {
   overflow-x: clip;

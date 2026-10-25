@@ -44,7 +44,7 @@ export default function Countdown({ date }) {
       {parts.map(([key, value]) => (
         <div
           key={key}
-          className="min-w-[4.25rem] rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-center backdrop-blur sm:min-w-[5.5rem] sm:px-4"
+          className="min-w-[4.25rem] rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-center sm:min-w-[5.5rem] sm:px-4"
         >
           <div className="font-serif text-2xl font-bold text-gold-300 sm:text-4xl">{value}</div>
           <div className="mt-1 text-[10px] uppercase tracking-widest text-navy-200 sm:text-xs">{t(key)}</div>

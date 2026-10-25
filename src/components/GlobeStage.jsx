@@ -2,12 +2,13 @@ import { useEffect, useRef } from 'react';
 
 /**
  * The fixed backdrop of the whole site:
- *  - a golden wireframe globe, always centred in the window, that turns as you scroll
- *    (and keeps drifting slowly when you stop),
- *  - gold dust that floats up and moves at different speeds as you scroll (parallax),
- *  - a thin gold progress line at the top showing how far down the page you are.
- * It is drawn on one <canvas> so it costs almost nothing, and it stands still for
- * visitors who asked their device for reduced motion.
+ *  - a golden wireframe globe, always centred in the window, that turns as you scroll,
+ *  - gold dust that drifts at different speeds as you scroll (parallax),
+ *  - a thin gold progress line at the top.
+ *
+ * EVERYTHING here is driven by the scroll position, so nothing moves while you are not
+ * scrolling. The drawing loop starts on scroll, eases to a stop, and then switches itself
+ * off completely: an idle page costs nothing. It is drawn on one <canvas>.
  */
 
 const TILT = 0.38; // axial tilt, radians
@@ -36,15 +37,14 @@ export default function GlobeStage() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     let w = 0;
     let h = 0;
     let dpr = 1;
     let raf = 0;
+    let sweepEls = [];
     let scrollY = window.scrollY;
     let smooth = scrollY; // eased scroll position
     let vel = 0; // eased scroll speed, drives the glow
-    let spin = 0;
     let last = performance.now();
     let particles = [];
 
@@ -63,7 +63,6 @@ export default function GlobeStage() {
         y: Math.random(),
         r: 0.5 + Math.random() * 1.7,
         par: 0.15 + Math.random() * 0.85, // parallax depth
-        rise: 6 + Math.random() * 16, // px per second
         ph: Math.random() * 6.28,
       }));
     };
@@ -72,15 +71,68 @@ export default function GlobeStage() {
       scrollY = window.scrollY;
     };
 
+    // Soft glows are painted ONCE into small offscreen canvases and then stamped each frame.
+    // Re-computing big radial gradients and canvas shadow-blur 60 times a second was the most
+    // expensive part of this canvas; stamping a ready-made image is almost free.
+    const makeSprite = (size, paint) => {
+      const c = document.createElement('canvas');
+      c.width = size;
+      c.height = size;
+      paint(c.getContext('2d'), size);
+      return c;
+    };
+    const haloSprite = makeSprite(512, (g, S) => {
+      const c = S / 2;
+      const gr = g.createRadialGradient(c, c, c * (0.35 / 2.1), c, c, c);
+      gr.addColorStop(0, 'rgba(222,184,92,1)');
+      gr.addColorStop(0.55, 'rgba(222,184,92,0.25)');
+      gr.addColorStop(1, 'rgba(222,184,92,0)');
+      g.fillStyle = gr;
+      g.fillRect(0, 0, S, S);
+    });
+    const bodySprite = makeSprite(512, (g, S) => {
+      const c = S / 2;
+      const gr = g.createRadialGradient(c - c * 0.35, c - c * 0.4, c * 0.1, c, c, c);
+      gr.addColorStop(0, 'rgba(201,162,75,0.16)');
+      gr.addColorStop(0.7, 'rgba(40,64,108,0.1)');
+      gr.addColorStop(1, 'rgba(222,184,92,0.14)');
+      g.beginPath();
+      g.arc(c, c, c, 0, 6.2832);
+      g.fillStyle = gr;
+      g.fill();
+    });
+    const RIM = 0.72; // ring radius as a share of the rim sprite's half-size
+    const rimSprite = makeSprite(768, (g, S) => {
+      const c = S / 2;
+      g.beginPath();
+      g.arc(c, c, c * RIM, 0, 6.2832);
+      g.lineWidth = 2.2;
+      g.strokeStyle = 'rgba(222,184,92,0.55)';
+      g.shadowColor = 'rgba(222,184,92,0.9)';
+      g.shadowBlur = 34;
+      g.stroke();
+    });
+    const starSprite = makeSprite(64, (g, S) => {
+      const c = S / 2;
+      const gr = g.createRadialGradient(c, c, 0, c, c, c);
+      gr.addColorStop(0, 'rgba(255,244,205,1)');
+      gr.addColorStop(0.18, 'rgba(255,240,190,0.95)');
+      gr.addColorStop(0.4, 'rgba(222,184,92,0.35)');
+      gr.addColorStop(1, 'rgba(222,184,92,0)');
+      g.fillStyle = gr;
+      g.fillRect(0, 0, S, S);
+    });
+
     const draw = (now) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
+      // rAF timestamps can be slightly older than performance.now(): never let dt go negative
+      const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
       last = now;
+      // Lenis (desktop) and the phone itself already ease the scroll, so no second ease here.
       const prev = smooth;
-      smooth += (scrollY - smooth) * Math.min(1, dt * 7);
+      smooth = scrollY;
       const speed = Math.abs(smooth - prev) / Math.max(dt, 0.001); // px/s
-      vel += (Math.min(1, speed / 1800) - vel) * Math.min(1, dt * 4);
-      if (!still) spin += dt * 0.09;
-      const rot = spin + smooth * 0.0019;
+      vel += (Math.min(1, speed / 1800) - vel) * (1 - Math.pow(0.02, dt)); // glow fades out in ~1s
+      const rot = 0.5 + smooth * 0.0019;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
@@ -89,42 +141,31 @@ export default function GlobeStage() {
       const max = Math.max(1, document.documentElement.scrollHeight - h);
       if (barRef.current) barRef.current.style.transform = `scaleX(${Math.min(1, scrollY / max)})`;
 
+      if (!sweepEls.length || !sweepEls[0].isConnected) {
+        sweepEls = [...document.querySelectorAll('.text-gold-gradient')];
+      }
+      // --- the gold sweep on "2027" travels with the scroll, too (no idle animation)
+      const sweep = 170 - ((smooth * 0.09) % 240);
+      for (const el of sweepEls) el.style.backgroundPosition = `${sweep}% 0`;
+
       // --- globe
       const cx = w / 2;
       const cy = h / 2;
       const R = w < 700 ? Math.min(w * 0.44, h * 0.3) : Math.min(w * 0.3, h * 0.38);
       const fade = 1 - 0.5 * Math.min(1, scrollY / (h * 0.9)); // calmer behind body text
-      const pulse = 1 + 0.015 * Math.sin(now / 1700) + vel * 0.03;
+      const pulse = 1 + 0.015 * Math.sin(smooth / 260) + vel * 0.03;
       const r = R * pulse;
       const glow = (0.16 + vel * 0.22) * fade;
 
-      // halo
-      let g = ctx.createRadialGradient(cx, cy, r * 0.35, cx, cy, r * 2.1);
-      g.addColorStop(0, GOLD(glow));
-      g.addColorStop(0.55, GOLD(glow * 0.25));
-      g.addColorStop(1, GOLD(0));
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
-
-      // body of the sphere
-      g = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r);
-      g.addColorStop(0, `rgba(201,162,75,${0.16 * fade})`);
-      g.addColorStop(0.7, `rgba(40,64,108,${0.1 * fade})`);
-      g.addColorStop(1, `rgba(222,184,92,${0.14 * fade})`);
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, 6.2832);
-      ctx.fillStyle = g;
-      ctx.fill();
-
-      // rim light
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, 6.2832);
-      ctx.lineWidth = 1.6;
-      ctx.strokeStyle = GOLD(0.55 * fade);
-      ctx.shadowColor = GOLD(0.9);
-      ctx.shadowBlur = 18 + vel * 28;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+      // halo, body and rim light: stamped from the sprites above
+      ctx.globalAlpha = Math.min(1, glow);
+      ctx.drawImage(haloSprite, cx - r * 2.1, cy - r * 2.1, r * 4.2, r * 4.2);
+      ctx.globalAlpha = fade;
+      ctx.drawImage(bodySprite, cx - r, cy - r, r * 2, r * 2);
+      ctx.globalAlpha = Math.min(1, fade * (1 + vel * 0.7));
+      const rs = r / RIM;
+      ctx.drawImage(rimSprite, cx - rs, cy - rs, rs * 2, rs * 2);
+      ctx.globalAlpha = 1;
 
       // latitude + longitude lines, split into the near side (bright) and far side (faint)
       const near = [];
@@ -165,14 +206,25 @@ export default function GlobeStage() {
       strokeSet(far, 0.1, 0.8);
       strokeSet(near, 0.5, 1.05);
 
-      // glimmering dots on the near side
+      // glimmering dots on the near side, grouped into 6 brightness levels (6 fills, not 500)
+      const BUCKETS = 6;
+      const paths = Array.from({ length: BUCKETS }, () => []);
       for (const d of DOTS) {
         const [x, y, z] = project(d.lat, d.lon, rot);
         if (z <= 0.02) continue;
-        const tw = 0.5 + 0.5 * Math.sin(now / 1000 * d.sp + d.tw);
-        ctx.fillStyle = `rgba(246,226,160,${(0.18 + 0.7 * tw * z) * fade})`;
+        const tw = 0.5 + 0.5 * Math.sin(smooth * 0.0045 * d.sp + d.tw);
+        const lvl = Math.min(BUCKETS - 1, Math.floor(tw * z * BUCKETS));
+        paths[lvl].push(cx + x * r, cy - y * r, 0.7 + z * 1.1 + tw * 0.5);
+      }
+      for (let i = 0; i < BUCKETS; i++) {
+        const pts = paths[i];
+        if (!pts.length) continue;
+        ctx.fillStyle = `rgba(246,226,160,${(0.18 + 0.7 * ((i + 0.5) / BUCKETS)) * fade})`;
         ctx.beginPath();
-        ctx.arc(cx + x * r, cy - y * r, 0.7 + z * 1.1 + tw * 0.5, 0, 6.2832);
+        for (let j = 0; j < pts.length; j += 3) {
+          ctx.moveTo(pts[j] + pts[j + 2], pts[j + 1]);
+          ctx.arc(pts[j], pts[j + 1], pts[j + 2], 0, 6.2832);
+        }
         ctx.fill();
       }
 
@@ -189,23 +241,18 @@ export default function GlobeStage() {
         ctx.lineWidth = 0.9;
         ctx.strokeStyle = GOLD((k === 0 ? 0.28 : 0.16) * fade);
         ctx.stroke();
-        const t = (now / (k === 0 ? 7000 : 11000) + smooth * 0.0006) * (k === 0 ? 1 : -1);
+        const t = (1.2 + smooth * (k === 0 ? 0.0021 : 0.0013)) * (k === 0 ? 1 : -1);
         const sx = Math.cos(t) * rx;
         const sy = Math.sin(t) * ry;
-        ctx.shadowColor = GOLD(1);
-        ctx.shadowBlur = 14;
-        ctx.fillStyle = 'rgba(255,240,190,0.95)';
-        ctx.beginPath();
-        ctx.arc(sx, sy, 2.6, 0, 6.2832);
-        ctx.fill();
+        ctx.drawImage(starSprite, sx - 14, sy - 14, 28, 28);
         ctx.restore();
       }
 
       // gold dust with parallax
       for (const p of particles) {
-        const y = (((p.y * h - smooth * p.par * 0.35 - (still ? 0 : now / 1000 * p.rise)) % h) + h) % h;
-        const x = p.x * w + Math.sin(now / 2600 + p.ph) * 12 * p.par;
-        const a = (0.18 + 0.45 * (0.5 + 0.5 * Math.sin(now / 900 + p.ph))) * (0.5 + p.par * 0.5);
+        const y = (((p.y * h - smooth * p.par * 0.35) % h) + h) % h;
+        const x = p.x * w + Math.sin(smooth / 420 + p.ph) * 12 * p.par;
+        const a = (0.18 + 0.45 * (0.5 + 0.5 * Math.sin(smooth / 150 + p.ph))) * (0.5 + p.par * 0.5);
         ctx.fillStyle = `rgba(240,214,140,${a})`;
         ctx.beginPath();
         ctx.arc(x, y, p.r, 0, 6.2832);
@@ -213,34 +260,32 @@ export default function GlobeStage() {
       }
     };
 
+    // The loop runs only while something is changing: scrolling, or the glow fading out.
     const loop = (now) => {
+      raf = 0;
       draw(now);
-      raf = requestAnimationFrame(loop);
+      if (Math.abs(scrollY - smooth) > 0.01 || vel > 0.003) raf = requestAnimationFrame(loop);
+    };
+    const kick = () => {
+      onScroll();
+      if (!raf) {
+        last = performance.now();
+        raf = requestAnimationFrame(loop);
+      }
+    };
+    const onResize = () => {
+      resize();
+      kick();
     };
 
     resize();
-    if (still) {
-      draw(performance.now());
-      const redraw = () => {
-        onScroll();
-        smooth = scrollY;
-        draw(performance.now());
-      };
-      window.addEventListener('scroll', redraw, { passive: true });
-      window.addEventListener('resize', () => {
-        resize();
-        redraw();
-      });
-      return () => window.removeEventListener('scroll', redraw);
-    }
-
-    raf = requestAnimationFrame(loop);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', resize);
+    kick();
+    window.addEventListener('scroll', kick, { passive: true });
+    window.addEventListener('resize', onResize);
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', resize);
+      window.removeEventListener('scroll', kick);
+      window.removeEventListener('resize', onResize);
     };
   }, []);
 

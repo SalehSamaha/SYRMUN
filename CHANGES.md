@@ -1,5 +1,14 @@
 # Changes
 
+## v1.4.0 — Smoothness: scroll-driven motion, smooth wheel, lighter effects
+- **Moves only when you scroll.** Globe, gold dust, the satellites and the gold "2027" sweep are all driven by scroll position. Nothing animates while the page is still, and the canvas loop switches itself off completely (0 redraws when idle).
+- **Smooth wheel scrolling** (Lenis) on the public site; off for "reduce motion"; touch screens keep native scrolling. Admin is untouched.
+- **Lighter drawing:** the globe's glows are painted once into small images and stamped each frame instead of recomputing big gradients and shadow-blur every frame; the 500 glimmering dots are drawn in 6 batches.
+- **Removed expensive blurs** that were barely visible: backdrop blur on cards, hero stat cards, footer, header (header is now solid navy), countdown tiles; the blur-in on scroll reveals. Cards are a touch more opaque (0.66 -> 0.8) to compensate.
+- Removed the idle floating of the logo and the leftover CSS of the old rotating scenes.
+- Fixed: a negative-time bug that could stop the globe from drawing.
+- Measured in a headless browser without GPU (relative only): sections 31 -> 19 ms/frame, hero 30 -> 24 ms/frame, idle cost ~0. No database changes.
+
 ## v1.3.0 — Golden globe stage, one navy look
 - **Golden globe** fixed in the centre of the window on every public page; it turns as you scroll (and drifts when you stop), glows brighter when you scroll fast, and has two orbiting satellites. Drawn on one canvas, still for "reduce motion".
 - **Gold dust** particles with parallax, and a **gold scroll-progress line** at the top.

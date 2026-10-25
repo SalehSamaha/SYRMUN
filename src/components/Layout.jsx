@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import GlobeStage from './GlobeStage.jsx';
+import { scrollToTop, startSmoothScroll } from '../lib/smoothScroll.js';
 import Logo from './Logo.jsx';
 import { useSettings } from '../lib/content.jsx';
 import { useI18n } from '../lib/i18n.jsx';
@@ -20,7 +21,7 @@ const NAV = [
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }, [pathname]);
   return null;
 }
@@ -53,7 +54,7 @@ function Header() {
     }`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950/95 text-white backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950 text-white">
       <div className="container-x flex h-16 items-center justify-between gap-2">
         <Link to="/" aria-label={t('nav.home')}>
           <Logo size={40} />
@@ -190,6 +191,7 @@ function Footer() {
 
 export default function Layout() {
   const { t, dir, lang } = useI18n();
+  useEffect(() => startSmoothScroll(), []);
   return (
     <div className="relative flex min-h-screen flex-col" dir={dir} lang={lang}>
       <GlobeStage />
