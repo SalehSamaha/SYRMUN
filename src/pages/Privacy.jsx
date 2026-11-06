@@ -14,22 +14,22 @@ export default function Privacy() {
   return (
     <>
       <PageHero eyebrow={t('pv.eyebrow')} title={t('pv.title')} />
-      <section className="py-14">
-        <div className="container-x max-w-3xl space-y-8 leading-relaxed text-navy-800">
+      <section className="bg-transparent py-20 text-white">
+        <div className="container-x max-w-3xl space-y-8 leading-relaxed text-navy-100 rounded-3xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-8 sm:p-12 shadow-soft">
           {[1, 2, 3, 4].map((n) => (
             <div key={n}>
-              <h2 className="text-2xl font-bold text-navy-950">{t(`pv.${n}.t`)}</h2>
-              <p className="mt-2">{t(`pv.${n}.d`)}</p>
+              <h2 className="text-2xl font-bold font-serif text-white">{t(`pv.${n}.t`)}</h2>
+              <p className="mt-2 text-navy-200">{t(`pv.${n}.d`)}</p>
             </div>
           ))}
           <div>
-            <h2 className="text-2xl font-bold text-navy-950">{t('pv.5.t')}</h2>
-            <p className="mt-2">
+            <h2 className="text-2xl font-bold font-serif text-white">{t('pv.5.t')}</h2>
+            <p className="mt-2 text-navy-200">
               {t('pv.5.d')}{' '}
               {settings.contact_email ? (
                 <>
                   {t('pv.5.email')}{' '}
-                  <a href={`mailto:${settings.contact_email}`} className="ltr-text font-semibold underline decoration-gold-500 underline-offset-2">
+                  <a href={`mailto:${settings.contact_email}`} className="ltr-text font-semibold text-sky-300 underline decoration-sky-400 underline-offset-2">
                     {settings.contact_email}
                   </a>
                   .

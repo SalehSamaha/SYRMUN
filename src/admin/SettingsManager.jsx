@@ -102,7 +102,7 @@ export default function SettingsManager() {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-gold-500/40 bg-gold-100/50 p-4 text-sm text-navy-900">
+      <div className="rounded-2xl border border-sky-400/30 bg-sky-500/10 p-4 text-sm text-navy-900">
         <strong>{a('Right now (based on today’s date and the values below):')}</strong>{' '}
         {preview.state === 'open'
           ? a('registration is OPEN — {x} fee, {y}.', { x: a(preview.label), y: formatMoney(preview.amount) })

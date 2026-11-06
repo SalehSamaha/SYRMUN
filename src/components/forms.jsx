@@ -4,7 +4,7 @@ export function Field({ label, htmlFor, required, hint, children }) {
       <label htmlFor={htmlFor} className="label">
         {label}
         {required && (
-          <span className="text-gold-700" aria-hidden="true">
+          <span className="text-sky-400 font-bold" aria-hidden="true">
             {' '}
             *
           </span>

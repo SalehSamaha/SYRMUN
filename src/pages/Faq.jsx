@@ -15,7 +15,7 @@ export default function Faq() {
   return (
     <>
       <PageHero eyebrow={t('common.faq')} title={t('faq.title')} intro={t('faq.intro')} />
-      <section className="py-16">
+      <section className="bg-transparent py-20 text-white">
         <div className="container-x max-w-3xl">
           {loading ? (
             <Spinner />
@@ -25,7 +25,7 @@ export default function Faq() {
             <div className="space-y-10">
               {categories.map((c) => (
                 <div key={c}>
-                  <h2 className="mb-4 text-2xl font-bold text-navy-950">{c}</h2>
+                  <h2 className="mb-4 text-2xl font-bold font-serif text-white">{c}</h2>
                   <FaqList items={data.filter((f) => cat(f) === c)} />
                 </div>
               ))}

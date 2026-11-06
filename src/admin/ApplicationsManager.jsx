@@ -216,7 +216,7 @@ export default function ApplicationsManager({ kind }) {
             key={s}
             type="button"
             onClick={() => setFilter(s)}
-            className={`rounded-full border px-4 py-1.5 text-sm font-semibold ${filter === s ? 'border-gold-500 bg-gold-500 text-navy-950' : 'border-navy-200 bg-white text-navy-800'}`}
+            className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition ${filter === s ? 'border-sky-400 bg-sky-400 text-navy-950' : 'border-navy-200 bg-white text-navy-800'}`}
           >
             {s === 'all' ? a('All') : a(STATUS_LABEL[s])} · {counts[s] ?? 0}
           </button>
@@ -249,7 +249,7 @@ export default function ApplicationsManager({ kind }) {
             </thead>
             <tbody className="divide-y divide-navy-100">
               {shown.map((r) => (
-                <tr key={r.id} className="cursor-pointer hover:bg-gold-100/30" onClick={() => setOpen(r)}>
+                <tr key={r.id} className="cursor-pointer hover:bg-sky-500/10 transition" onClick={() => setOpen(r)}>
                   <td className="px-4 py-3">
                     <button type="button" className="text-start font-semibold text-navy-950 underline decoration-navy-200" onClick={() => setOpen(r)}>
                       {r.full_name}
