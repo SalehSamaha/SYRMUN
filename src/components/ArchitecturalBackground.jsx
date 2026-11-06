@@ -3,9 +3,9 @@ import { useEffect, useRef } from 'react';
 /**
  * Full-site architectural background.
  *
- * The video is scrubbed by document scroll progress:
- * 0% scroll = first frame, 100% scroll = last frame.
- * The element never plays independently, so scrolling upward reverses it.
+ * Scroll progress controls the video timeline. Only one seek is allowed at a
+ * time; while the browser decodes that frame, newer scroll positions replace
+ * the target instead of creating a backlog of expensive seeks.
  */
 export default function ArchitecturalBackground() {
   const videoRef = useRef(null);
@@ -17,8 +17,9 @@ export default function ArchitecturalBackground() {
 
     let frame = 0;
     let duration = 0;
+    let seekInFlight = false;
+    let latestTargetTime = 0;
 
-    // Keep the media paused at all times. Its currentTime is controlled by scroll.
     video.pause();
 
     const getProgress = () => {
@@ -29,7 +30,6 @@ export default function ArchitecturalBackground() {
 
     const renderScrollPosition = () => {
       frame = 0;
-
       const progress = getProgress();
 
       if (progressBarRef.current) {
@@ -40,13 +40,18 @@ export default function ArchitecturalBackground() {
         return;
       }
 
-      // Map the whole document scroll range directly to the complete video timeline.
-      const targetTime = progress * duration;
-      if (Math.abs(video.currentTime - targetTime) > 0.025) {
+      latestTargetTime = progress * duration;
+
+      // Never queue seeks while the previous frame is still being decoded.
+      // The seeked event schedules one fresh seek to the latest scroll position.
+      if (seekInFlight || video.seeking) return;
+
+      if (Math.abs(video.currentTime - latestTargetTime) > 0.04) {
+        seekInFlight = true;
         try {
-          video.currentTime = targetTime;
+          video.currentTime = latestTargetTime;
         } catch {
-          // Metadata/seekability may not be ready yet; loadedmetadata will retry.
+          seekInFlight = false;
         }
       }
     };
@@ -61,27 +66,31 @@ export default function ArchitecturalBackground() {
       scheduleUpdate();
     };
 
+    const onSeeked = () => {
+      seekInFlight = false;
+      scheduleUpdate();
+    };
+
     const preventPlayback = () => {
-      // Protect against browser autoplay/resume behaviour: this video is a scrubber, not a player.
       if (!video.paused) video.pause();
     };
 
     video.addEventListener('loadedmetadata', syncDuration);
     video.addEventListener('durationchange', syncDuration);
+    video.addEventListener('seeked', onSeeked);
     video.addEventListener('play', preventPlayback);
     window.addEventListener('scroll', scheduleUpdate, { passive: true });
     window.addEventListener('resize', scheduleUpdate, { passive: true });
 
     if (video.readyState >= HTMLMediaElement.HAVE_METADATA) syncDuration();
     else scheduleUpdate();
-
-    // Set the correct frame on first paint and after content/layout changes.
     scheduleUpdate();
 
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       video.removeEventListener('loadedmetadata', syncDuration);
       video.removeEventListener('durationchange', syncDuration);
+      video.removeEventListener('seeked', onSeeked);
       video.removeEventListener('play', preventPlayback);
       window.removeEventListener('scroll', scheduleUpdate);
       window.removeEventListener('resize', scheduleUpdate);
