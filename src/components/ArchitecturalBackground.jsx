@@ -1,11 +1,10 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Scroll-scrubbed architectural background.
- *
- * During active scrolling, use fastSeek when available so the browser can jump
- * to nearby keyframes quickly. Once scrolling stops, perform one precise seek
- * to the exact scroll position. Never build a queue of seeks.
+ * Velocity-driven cinematic background, using the same playback model as
+ * WEST MUN: native forward playback, frame-stepped reverse playback, and
+ * a short friction tail after scrolling stops. This avoids trying to decode
+ * a new arbitrary video timestamp for every scroll event.
  */
 export default function ArchitecturalBackground() {
   const videoRef = useRef(null);
@@ -15,103 +14,200 @@ export default function ArchitecturalBackground() {
     const video = videoRef.current;
     if (!video) return undefined;
 
-    let frame = 0;
+    let rafId = null;
+    let lastScrollY = window.scrollY || 0;
+    let lastScrollTime = 0;
+    let lastScrollTimestamp = 0;
+    let lastFrameTime = 0;
+    let smoothedVelocity = 0;
+    let currentPlaybackRate = 1;
+    let targetPlaybackRate = 1;
+    let direction = 1;
+    let lastReverseSeekTime = 0;
+    let pendingSeekTime = null;
+    let isSeeking = false;
     let duration = 0;
-    let seekInFlight = false;
-    let isScrolling = false;
-    let idleTimer = null;
-    let latestTargetTime = 0;
+
+    const MIN_RATE = 0.85;
+    const MAX_RATE = 1.75;
+    const VELOCITY_MULTIPLIER = 0.45;
+    const FRICTION = 0.92;
+    const IDLE_THRESHOLD_MS = 80;
+    const MIN_HALT_RATE = 0.12;
 
     video.pause();
+    video.loop = false;
 
-    const getProgress = () => {
-      const root = document.documentElement;
-      const maxScroll = Math.max(0, root.scrollHeight - window.innerHeight);
-      return maxScroll === 0 ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    const updateProgress = () => {
+      if (!progressBarRef.current || !duration) return;
+      const progress = Math.min(1, Math.max(0, video.currentTime / duration));
+      progressBarRef.current.style.transform = `scaleX(${progress})`;
     };
 
-    const requestLatestPosition = () => {
-      if (!duration || !Number.isFinite(duration) || video.readyState < HTMLMediaElement.HAVE_METADATA) return;
-      if (seekInFlight || video.seeking) return;
+    const dispatchReverseSeek = (time) => {
+      const target = Math.max(0, Math.min(duration || 0, time));
+      if (Math.abs(video.currentTime - target) < 0.02) return;
 
-      const difference = Math.abs(video.currentTime - latestTargetTime);
-      if (difference < (isScrolling ? 0.12 : 0.015)) return;
+      if (video.seeking || isSeeking) {
+        pendingSeekTime = target;
+        return;
+      }
 
-      seekInFlight = true;
       try {
-        if (isScrolling && typeof video.fastSeek === 'function') {
-          video.fastSeek(latestTargetTime);
-        } else {
-          video.currentTime = latestTargetTime;
-        }
+        isSeeking = true;
+        video.currentTime = target;
       } catch {
-        seekInFlight = false;
+        isSeeking = false;
       }
     };
 
-    const renderScrollPosition = () => {
-      frame = 0;
-      const progress = getProgress();
-
-      if (progressBarRef.current) {
-        progressBarRef.current.style.transform = `scaleX(${progress})`;
+    const onSeeked = () => {
+      isSeeking = false;
+      if (pendingSeekTime !== null) {
+        const nextTime = pendingSeekTime;
+        pendingSeekTime = null;
+        dispatchReverseSeek(nextTime);
       }
-
-      latestTargetTime = progress * duration;
-      requestLatestPosition();
+      updateProgress();
     };
 
-    const scheduleUpdate = () => {
-      if (!frame) frame = window.requestAnimationFrame(renderScrollPosition);
+    const stop = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      if (!video.paused) video.pause();
+      try {
+        video.playbackRate = 1;
+      } catch {}
+      currentPlaybackRate = 1;
+      smoothedVelocity = 0;
+      pendingSeekTime = null;
+      isSeeking = false;
+      updateProgress();
+    };
+
+    const tick = (now) => {
+      if (document.hidden) {
+        stop();
+        return;
+      }
+
+      const deltaFrame = Math.min(50, Math.max(0, now - lastFrameTime));
+      lastFrameTime = now;
+      const timeSinceLastScroll = now - lastScrollTimestamp;
+
+      if (timeSinceLastScroll > IDLE_THRESHOLD_MS) {
+        const frameRatio = deltaFrame / 16.67;
+        const decay = Math.pow(FRICTION, frameRatio);
+        currentPlaybackRate *= decay;
+        smoothedVelocity *= decay;
+
+        if (currentPlaybackRate <= MIN_HALT_RATE) {
+          stop();
+          return;
+        }
+      } else {
+        const blend = Math.min(1, 0.25 * (deltaFrame / 16.67));
+        currentPlaybackRate += (targetPlaybackRate - currentPlaybackRate) * blend;
+      }
+
+      const rate = Math.max(0.1, currentPlaybackRate);
+
+      if (direction > 0) {
+        if (duration && video.currentTime >= duration - 0.025) {
+          video.currentTime = duration;
+          stop();
+          return;
+        }
+        if (video.paused) video.play().catch(() => {});
+        try {
+          video.playbackRate = rate;
+        } catch {}
+      } else {
+        if (!video.paused) video.pause();
+        const nextTime = video.currentTime - (deltaFrame / 1000) * rate;
+        if (nextTime <= 0.02) {
+          dispatchReverseSeek(0);
+          stop();
+          return;
+        }
+
+        if (now - lastReverseSeekTime >= 30) {
+          lastReverseSeekTime = now;
+          dispatchReverseSeek(nextTime);
+        } else {
+          pendingSeekTime = nextTime;
+        }
+      }
+
+      updateProgress();
+      rafId = requestAnimationFrame(tick);
     };
 
     const onScroll = () => {
-      isScrolling = true;
-      if (idleTimer !== null) window.clearTimeout(idleTimer);
-      idleTimer = window.setTimeout(() => {
-        isScrolling = false;
-        scheduleUpdate();
-      }, 120);
-      scheduleUpdate();
+      const now = performance.now();
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const dt = now - lastScrollTime;
+      const dy = scrollY - lastScrollY;
+      const absDy = Math.abs(dy);
+
+      if (absDy >= 1.5) direction = dy > 0 ? 1 : -1;
+
+      lastScrollY = scrollY;
+      lastScrollTime = now;
+      lastScrollTimestamp = now;
+
+      if (dt > 4 && dt < 250) {
+        const instantVelocity = absDy / dt;
+        smoothedVelocity = smoothedVelocity * 0.35 + instantVelocity * 0.65;
+      } else {
+        smoothedVelocity = Math.max(0.2, smoothedVelocity * 0.5);
+      }
+
+      targetPlaybackRate = Math.min(
+        MAX_RATE,
+        Math.max(MIN_RATE, MIN_RATE + smoothedVelocity * VELOCITY_MULTIPLIER)
+      );
+
+      if (direction > 0) {
+        if (video.paused) video.play().catch(() => {});
+      } else if (!video.paused) {
+        video.pause();
+      }
+
+      if (rafId === null) {
+        lastFrameTime = now;
+        rafId = requestAnimationFrame(tick);
+      }
     };
 
     const syncDuration = () => {
       duration = Number.isFinite(video.duration) ? video.duration : 0;
-      video.pause();
-      scheduleUpdate();
+      updateProgress();
     };
 
-    const onSeeked = () => {
-      seekInFlight = false;
-      // If the user kept scrolling during decode, jump toward the newest
-      // position. If they stopped, this becomes the final precise seek.
-      scheduleUpdate();
-    };
-
-    const preventPlayback = () => {
-      if (!video.paused) video.pause();
+    const onVisibilityChange = () => {
+      if (document.hidden) stop();
     };
 
     video.addEventListener('loadedmetadata', syncDuration);
     video.addEventListener('durationchange', syncDuration);
     video.addEventListener('seeked', onSeeked);
-    video.addEventListener('play', preventPlayback);
+    video.addEventListener('timeupdate', updateProgress);
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', scheduleUpdate, { passive: true });
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
-    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) syncDuration();
-    else scheduleUpdate();
-    scheduleUpdate();
+    if (video.readyState >= 1) syncDuration();
 
     return () => {
-      if (frame) window.cancelAnimationFrame(frame);
-      if (idleTimer !== null) window.clearTimeout(idleTimer);
+      stop();
       video.removeEventListener('loadedmetadata', syncDuration);
       video.removeEventListener('durationchange', syncDuration);
       video.removeEventListener('seeked', onSeeked);
-      video.removeEventListener('play', preventPlayback);
+      video.removeEventListener('timeupdate', updateProgress);
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', scheduleUpdate);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, []);
 
