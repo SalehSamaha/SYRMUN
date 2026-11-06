@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Full-site architectural background.
+ * Scroll-scrubbed architectural background.
  *
- * Scroll progress controls the video timeline. Only one seek is allowed at a
- * time; while the browser decodes that frame, newer scroll positions replace
- * the target instead of creating a backlog of expensive seeks.
+ * During active scrolling, use fastSeek when available so the browser can jump
+ * to nearby keyframes quickly. Once scrolling stops, perform one precise seek
+ * to the exact scroll position. Never build a queue of seeks.
  */
 export default function ArchitecturalBackground() {
   const videoRef = useRef(null);
@@ -18,6 +18,8 @@ export default function ArchitecturalBackground() {
     let frame = 0;
     let duration = 0;
     let seekInFlight = false;
+    let isScrolling = false;
+    let idleTimer = null;
     let latestTargetTime = 0;
 
     video.pause();
@@ -28,6 +30,25 @@ export default function ArchitecturalBackground() {
       return maxScroll === 0 ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll));
     };
 
+    const requestLatestPosition = () => {
+      if (!duration || !Number.isFinite(duration) || video.readyState < HTMLMediaElement.HAVE_METADATA) return;
+      if (seekInFlight || video.seeking) return;
+
+      const difference = Math.abs(video.currentTime - latestTargetTime);
+      if (difference < (isScrolling ? 0.12 : 0.015)) return;
+
+      seekInFlight = true;
+      try {
+        if (isScrolling && typeof video.fastSeek === 'function') {
+          video.fastSeek(latestTargetTime);
+        } else {
+          video.currentTime = latestTargetTime;
+        }
+      } catch {
+        seekInFlight = false;
+      }
+    };
+
     const renderScrollPosition = () => {
       frame = 0;
       const progress = getProgress();
@@ -36,28 +57,22 @@ export default function ArchitecturalBackground() {
         progressBarRef.current.style.transform = `scaleX(${progress})`;
       }
 
-      if (!duration || !Number.isFinite(duration) || video.readyState < HTMLMediaElement.HAVE_METADATA) {
-        return;
-      }
-
       latestTargetTime = progress * duration;
-
-      // Never queue seeks while the previous frame is still being decoded.
-      // The seeked event schedules one fresh seek to the latest scroll position.
-      if (seekInFlight || video.seeking) return;
-
-      if (Math.abs(video.currentTime - latestTargetTime) > 0.04) {
-        seekInFlight = true;
-        try {
-          video.currentTime = latestTargetTime;
-        } catch {
-          seekInFlight = false;
-        }
-      }
+      requestLatestPosition();
     };
 
     const scheduleUpdate = () => {
       if (!frame) frame = window.requestAnimationFrame(renderScrollPosition);
+    };
+
+    const onScroll = () => {
+      isScrolling = true;
+      if (idleTimer !== null) window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(() => {
+        isScrolling = false;
+        scheduleUpdate();
+      }, 120);
+      scheduleUpdate();
     };
 
     const syncDuration = () => {
@@ -68,6 +83,8 @@ export default function ArchitecturalBackground() {
 
     const onSeeked = () => {
       seekInFlight = false;
+      // If the user kept scrolling during decode, jump toward the newest
+      // position. If they stopped, this becomes the final precise seek.
       scheduleUpdate();
     };
 
@@ -79,7 +96,7 @@ export default function ArchitecturalBackground() {
     video.addEventListener('durationchange', syncDuration);
     video.addEventListener('seeked', onSeeked);
     video.addEventListener('play', preventPlayback);
-    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', scheduleUpdate, { passive: true });
 
     if (video.readyState >= HTMLMediaElement.HAVE_METADATA) syncDuration();
@@ -88,11 +105,12 @@ export default function ArchitecturalBackground() {
 
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
+      if (idleTimer !== null) window.clearTimeout(idleTimer);
       video.removeEventListener('loadedmetadata', syncDuration);
       video.removeEventListener('durationchange', syncDuration);
       video.removeEventListener('seeked', onSeeked);
       video.removeEventListener('play', preventPlayback);
-      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', scheduleUpdate);
     };
   }, []);
