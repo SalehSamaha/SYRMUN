@@ -3,7 +3,6 @@ import { Icon } from '../components/art.jsx';
 import Countdown from '../components/Countdown.jsx';
 import Reveal from '../components/Reveal.jsx';
 import BoardCard from '../components/BoardCard.jsx';
-import CinematicOpening from '../components/CinematicOpening.jsx';
 import { EmptyState, FaqList, SectionHeading } from '../components/ui.jsx';
 import { useRows, useSettings } from '../lib/content.jsx';
 import { formatMoney, getFeeTable, getRegistrationState } from '../lib/fees.js';
@@ -46,34 +45,66 @@ export default function Home() {
 
   return (
     <>
-      <CinematicOpening settings={settings} ctaLabel={ctaLabel} />
-
-      <div className="syr-marquee relative z-10 overflow-hidden border-y border-white/10 bg-[#03122d]/35 py-4 backdrop-blur-sm" aria-label="SYRMUN 2027">
-        <div className="syr-marquee-track flex w-max items-center gap-8 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.34em] text-sky-100/55">
-          {Array.from({ length: 4 }, (_, i) => (
-            <span key={i} className="flex items-center gap-8">
-              <span>SYRMUN 2027</span><span className="text-sky-300">✦</span>
-              <span>WHERE VOICES SHAPE TOMORROW</span><span className="text-sky-300">✦</span>
-              <span>RIYADH · SAUDI ARABIA</span><span className="text-sky-300">✦</span>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* INSTITUTIONAL SNAPSHOT */}
-      <section className="relative z-10 border-b border-white/10 bg-[#03122d]/25 py-5 backdrop-blur-sm">
-        <div className="container-x grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {stats.map(([icon, value, label]) => (
-            <div key={label} className="flex items-center gap-3 border-s border-white/10 ps-3 first:border-0 first:ps-0">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-sky-200/15 bg-sky-300/[0.06] text-sky-200">
-                <Icon name={icon} className="h-4 w-4" />
-              </span>
-              <div className="min-w-0">
-                <dd className="truncate font-serif text-lg font-bold leading-tight text-white tabular-nums">{value}</dd>
-                <dt className="truncate text-[10px] uppercase tracking-wider text-navy-200/75">{label}</dt>
-              </div>
+      {/* HERO SECTION — Cinematic Editorial Marquee Floating over Architectural Video */}
+      <section className="relative overflow-hidden text-white">
+        <div className="container-x relative z-10 pt-20 pb-16 sm:pt-28 sm:pb-24">
+          <div className="max-w-3xl">
+            {/* Unboxed Metadata Header (Anti-Slop Zero-Pill discipline) */}
+            <div className="flex flex-wrap items-center gap-2 text-xs font-medium tracking-wider text-sky-200/90 uppercase">
+              <span>{st('venue_text')}</span>
+              <span aria-hidden="true" className="text-white/40">·</span>
+              <span>{st('conference_dates_text')}</span>
+              <span aria-hidden="true" className="text-white/40">·</span>
+              <span>{t('hero.sub')}</span>
             </div>
-          ))}
+
+            <h1
+              className="mt-6 text-5xl font-extrabold tracking-tight leading-[1.05] sm:text-7xl lg:text-8xl"
+              dir="ltr"
+              style={{ textAlign: lang === 'ar' ? 'right' : 'left' }}
+            >
+              SYRMUN <span className="text-gold-gradient font-serif">2027</span>
+            </h1>
+
+            <p className="mt-4 font-serif text-xl text-sky-100/90 sm:text-2xl">
+              {t('hero.sub')}
+            </p>
+
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-navy-100/90 sm:text-lg">
+              {t('hero.intro')} {st('tagline')}
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link to="/register" className="btn-gold">
+                {ctaLabel}
+              </Link>
+              <Link to="/about" className="btn-outline">
+                {t('hero.learn')}
+              </Link>
+            </div>
+
+            <div className="mt-12">
+              <Countdown date={settings.conference_start} />
+            </div>
+          </div>
+
+          {/* Institutional KPI Strip in Translucent Hairline Glass */}
+          <dl className="mt-16 grid grid-cols-2 gap-4 pb-4 sm:grid-cols-4">
+            {stats.map(([icon, value, label]) => (
+              <div
+                key={label}
+                className="flex items-center gap-3.5 rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm px-4 py-3.5 shadow-soft transition hover:border-sky-400/30 hover:bg-[#021742]/50"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-sky-300">
+                  <Icon name={icon} className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <dd className="truncate font-serif text-lg font-bold leading-tight text-white tabular-nums">{value}</dd>
+                  <dt className="truncate text-xs text-navy-200">{label}</dt>
+                </div>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
