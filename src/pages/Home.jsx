@@ -3,7 +3,7 @@ import { Icon } from '../components/art.jsx';
 import Countdown from '../components/Countdown.jsx';
 import Reveal from '../components/Reveal.jsx';
 import BoardCard from '../components/BoardCard.jsx';
-import ArchitecturalEmblem from '../components/ArchitecturalEmblem.jsx';
+import CinematicOpening from '../components/CinematicOpening.jsx';
 import { EmptyState, FaqList, SectionHeading } from '../components/ui.jsx';
 import { useRows, useSettings } from '../lib/content.jsx';
 import { formatMoney, getFeeTable, getRegistrationState } from '../lib/fees.js';
@@ -46,78 +46,7 @@ export default function Home() {
 
   return (
     <>
-      {/* CINEMATIC OPENING — the emblem draws itself on load and reverses with scroll */}
-      <section className="syr-cinematic-hero relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden text-white">
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="syr-hero-vignette absolute inset-0" />
-          <div className="syr-hero-grid absolute inset-0 opacity-30" />
-          <div className="absolute -left-40 top-1/4 h-80 w-80 rounded-full bg-sky-500/10 blur-[110px]" />
-          <div className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-blue-400/10 blur-[120px]" />
-        </div>
-
-        <div className="container-x relative z-10 grid w-full items-center gap-8 py-12 sm:py-16 lg:grid-cols-[1.02fr_.98fr] lg:gap-2 lg:py-10">
-          <div className="relative z-10 max-w-2xl">
-            <div className="syr-intro-reveal flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-sky-200/80 sm:text-xs">
-              <span>{st('venue_text')}</span>
-              <span aria-hidden="true" className="text-white/35">/</span>
-              <span>{st('conference_dates_text')}</span>
-              <span aria-hidden="true" className="text-white/35">/</span>
-              <span>{t('hero.sub')}</span>
-            </div>
-
-            <p className="syr-intro-reveal mt-8 font-sans text-xs font-semibold uppercase tracking-[0.42em] text-sky-300/90" style={{ animationDelay: '120ms' }}>
-              SYR · MUN · 2027
-            </p>
-
-            <h1
-              className="syr-title-reveal mt-4 text-6xl font-extrabold leading-[0.92] tracking-[-0.065em] sm:text-7xl md:text-8xl xl:text-[7.5rem]"
-              dir="ltr"
-              style={{ textAlign: lang === 'ar' ? 'right' : 'left', animationDelay: '220ms' }}
-            >
-              SYRMUN<span className="text-gold-gradient font-serif">.</span>
-              <span className="mt-2 block font-serif text-4xl font-medium tracking-[-0.035em] text-white/85 sm:text-5xl xl:text-6xl">2027</span>
-            </h1>
-
-            <p className="syr-intro-reveal mt-7 max-w-lg font-serif text-xl leading-relaxed text-sky-100/90 sm:text-2xl" style={{ animationDelay: '360ms' }}>
-              {t('hero.sub')}
-            </p>
-
-            <p className="syr-intro-reveal mt-4 max-w-xl text-sm leading-7 text-navy-100/80 sm:text-base sm:leading-8" style={{ animationDelay: '460ms' }}>
-              {t('hero.intro')} {st('tagline')}
-            </p>
-
-            <div className="syr-intro-reveal mt-8 flex flex-wrap items-center gap-3" style={{ animationDelay: '560ms' }}>
-              <Link to="/register" className="btn-gold">
-                {ctaLabel}
-              </Link>
-              <Link to="/about" className="btn-outline">
-                {t('hero.learn')}
-              </Link>
-            </div>
-
-            <div className="syr-intro-reveal mt-9 max-w-sm" style={{ animationDelay: '680ms' }}>
-              <Countdown date={settings.conference_start} />
-            </div>
-
-            <div className="syr-intro-reveal mt-10 flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.3em] text-white/45" style={{ animationDelay: '780ms' }}>
-              <span className="h-px w-10 bg-sky-300/60" />
-              <span>{lang === 'ar' ? 'مرّر لاكتشاف المزيد' : 'Scroll to explore'}</span>
-            </div>
-          </div>
-
-          <div className="syr-emblem-stage relative mx-auto flex w-full max-w-[570px] items-center justify-center lg:-me-8">
-            <div className="pointer-events-none absolute inset-[8%] rounded-full border border-sky-200/10" />
-            <div className="pointer-events-none absolute inset-[15%] rounded-full border border-dashed border-sky-200/10" />
-            <div className="pointer-events-none absolute inset-[22%] rounded-full bg-sky-400/[0.06] blur-3xl" />
-            <ArchitecturalEmblem className="relative z-10 w-full" />
-            <span className="pointer-events-none absolute bottom-2 right-2 hidden text-[9px] font-medium uppercase tracking-[0.32em] text-sky-100/35 sm:block">
-              EST. RIYADH · 2027
-            </span>
-          </div>
-        </div>
-
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-[#030d1e]/55" />
-      </section>
+      <CinematicOpening settings={settings} ctaLabel={ctaLabel} />
 
       <div className="syr-marquee relative z-10 overflow-hidden border-y border-white/10 bg-[#03122d]/35 py-4 backdrop-blur-sm" aria-label="SYRMUN 2027">
         <div className="syr-marquee-track flex w-max items-center gap-8 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.34em] text-sky-100/55">

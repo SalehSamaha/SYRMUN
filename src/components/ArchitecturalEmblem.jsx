@@ -14,13 +14,15 @@ import { useI18n } from '../lib/i18n.jsx';
  *  - Zero CAD grids, zero coordinates, zero technical clutter.
  */
 
-export default function ArchitecturalEmblem({ className = '', onReplay }) {
+export default function ArchitecturalEmblem({ className = '', onReplay, scrollProgress }) {
   const { lang, t } = useI18n();
   const [progress, setProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const progressRef = useRef(0);
   const rafRef = useRef(0);
   const userHasScrolledRef = useRef(false);
+  const externallyControlled = Number.isFinite(scrollProgress);
+  const shownProgress = externallyControlled ? Math.min(1, Math.max(0, scrollProgress)) : progress;
 
   // Update progress helper
   const updateProgress = useCallback((val) => {
@@ -63,6 +65,10 @@ export default function ArchitecturalEmblem({ className = '', onReplay }) {
   }, [updateProgress]);
 
   useEffect(() => {
+    if (externallyControlled) {
+      updateProgress(scrollProgress);
+      return undefined;
+    }
     // Respect prefers-reduced-motion
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       updateProgress(1);
@@ -96,7 +102,7 @@ export default function ArchitecturalEmblem({ className = '', onReplay }) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener('scroll', onScroll);
     };
-  }, [startEntranceAnimation, updateProgress]);
+  }, [startEntranceAnimation, updateProgress, externallyControlled]);
 
   const handleManualReplay = (e) => {
     e.stopPropagation();
@@ -111,7 +117,7 @@ export default function ArchitecturalEmblem({ className = '', onReplay }) {
    * Helper to compute path strokeDashoffset and opacity based on progress window [start, end]
    */
   const getPathStyle = (start, end, len, fillSolid = true) => {
-    const local = Math.min(1, Math.max(0, (progress - start) / (end - start)));
+    const local = Math.min(1, Math.max(0, (shownProgress - start) / (end - start)));
     const strokeDashoffset = len * (1 - local);
     // Subtle fill solidifies as drawing nears completion
     const fillOpacity = fillSolid && local >= 0.85 ? Math.min(1, (local - 0.85) / 0.15) : 0;
@@ -119,7 +125,7 @@ export default function ArchitecturalEmblem({ className = '', onReplay }) {
       strokeDasharray: len,
       strokeDashoffset,
       fill: fillOpacity > 0 ? `rgba(255, 255, 255, ${0.92 * fillOpacity})` : 'transparent',
-      transition: isPlaying ? 'none' : 'stroke-dashoffset 0.1s linear, fill 0.2s ease',
+      transition: (isPlaying && !externallyControlled) ? 'none' : 'stroke-dashoffset 0.1s linear, fill 0.2s ease',
     };
   };
 
@@ -131,7 +137,7 @@ export default function ArchitecturalEmblem({ className = '', onReplay }) {
         style={{
           background: 'radial-gradient(circle, rgba(20, 60, 140, 0.45) 0%, rgba(2, 29, 96, 0.15) 55%, transparent 72%)',
           filter: 'blur(32px)',
-          opacity: 0.2 + progress * 0.7,
+          opacity: 0.2 + shownProgress * 0.7,
         }}
       />
 
@@ -277,8 +283,8 @@ export default function ArchitecturalEmblem({ className = '', onReplay }) {
               fontWeight="700"
               letterSpacing="0.22em"
               style={{
-                opacity: Math.min(1, Math.max(0, (progress - 0.76) / 0.14)),
-                transition: isPlaying ? 'none' : 'opacity 0.2s ease',
+                opacity: Math.min(1, Math.max(0, (shownProgress - 0.76) / 0.14)),
+                transition: (isPlaying && !externallyControlled) ? 'none' : 'opacity 0.2s ease',
               }}
             >
               <textPath href="#emblem-text-arc" startOffset="50%" textAnchor="middle">
@@ -306,8 +312,8 @@ export default function ArchitecturalEmblem({ className = '', onReplay }) {
               strokeWidth="2.0"
               style={{
                 strokeDasharray: 1560,
-                strokeDashoffset: 1560 * (1 - Math.min(1, Math.max(0, (progress - 0.86) / 0.12))),
-                transition: isPlaying ? 'none' : 'stroke-dashoffset 0.15s linear',
+                strokeDashoffset: 1560 * (1 - Math.min(1, Math.max(0, (shownProgress - 0.86) / 0.12))),
+                transition: (isPlaying && !externallyControlled) ? 'none' : 'stroke-dashoffset 0.15s linear',
               }}
             />
           </g>
@@ -316,7 +322,7 @@ export default function ArchitecturalEmblem({ className = '', onReplay }) {
 
       {/* Subtle Classical Interaction Bar below emblem */}
       <div className="mt-4 flex items-center justify-between gap-4 w-full max-w-[340px] px-2 text-xs text-navy-200/60 font-medium">
-        <button
+        {!externallyControlled && <button
           type="button"
           onClick={handleManualReplay}
           className="group inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[11px] text-white/80 transition-all hover:border-white/50 hover:bg-white/10 hover:text-white active:scale-95"
@@ -332,19 +338,19 @@ export default function ArchitecturalEmblem({ className = '', onReplay }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           <span>{t('intro.replay')}</span>
-        </button>
+        </button>}
 
         {/* Minimal progress / status indicator */}
         <div className="flex items-center gap-2">
           <span className="text-[10px] tracking-wider uppercase text-navy-200/50">
-            {progress >= 0.95
+            {shownProgress >= 0.95
               ? (lang === 'ar' ? 'مكتمل' : 'Completed')
               : (lang === 'ar' ? 'جارٍ الرسم المعماري' : 'Architectural Draw')}
           </span>
           <span className="h-1.5 w-16 bg-white/10 rounded-full overflow-hidden block">
             <span
               className="h-full bg-white/80 block rounded-full transition-all duration-150"
-              style={{ width: `${Math.round(progress * 100)}%` }}
+              style={{ width: `${Math.round(shownProgress * 100)}%` }}
             />
           </span>
         </div>
