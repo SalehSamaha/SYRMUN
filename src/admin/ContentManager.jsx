@@ -29,7 +29,7 @@ function FieldInput({ field, value, onChange }) {
     case 'bool':
       return (
         <label className="flex items-center gap-3">
-          <input id={id} type="checkbox" className="h-5 w-5 accent-gold-600" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} />
+          <input id={id} type="checkbox" className="h-5 w-5 accent-sky-500" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} />
           <span className="text-sm text-navy-800">{fieldLabel(a, field)}</span>
         </label>
       );
@@ -99,7 +99,7 @@ function Editor({ table, config, initial, onClose, onSaved }) {
             {f.type !== 'bool' && (
               <label htmlFor={`f_${f.name}`} className="label">
                 {fieldLabel(a, f)}
-                {f.required && <span className="text-gold-700"> *</span>}
+                {f.required && <span className="text-sky-400 font-bold"> *</span>}
               </label>
             )}
             <FieldInput field={f} value={form[f.name]} onChange={(v) => setForm((s) => ({ ...s, [f.name]: v }))} />

@@ -1,0 +1,8 @@
+{
+  "name": "SYRMUN 2027 — Syria Model United Nations",
+  "description": "SYRMUN 2027 is a two-day Model United Nations conference in Damascus, Syria, in 2027. An affordable, welcoming and professional MUN experience.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

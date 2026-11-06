@@ -161,10 +161,10 @@ function AdminGate({ children }) {
 function AdminLayout({ email }) {
   const { a, dir, lang } = useA();
   const link = ({ isActive }) =>
-    `whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-gold-500 text-navy-950' : 'text-navy-100 hover:bg-white/10'}`;
+    `whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition ${isActive ? 'bg-white text-navy-950 font-semibold' : 'text-navy-100 hover:bg-white/10'}`;
   return (
     <div className="min-h-screen bg-navy-50/60" dir={dir} lang={lang}>
-      <header className="bg-navy-950 text-white">
+      <header className="bg-navy-950 text-white border-b border-white/10">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="" width="32" height="32" />
@@ -174,9 +174,9 @@ function AdminLayout({ email }) {
             <Link to="/" target="_blank" className="text-navy-200 hover:text-white">
               {a('View site ↗')}
             </Link>
-            <LangButton className="border-white/30 text-white hover:border-gold-400" />
+            <LangButton className="border-white/30 text-white hover:border-sky-300" />
             <span className="hidden text-navy-300 sm:inline" dir="ltr">{email}</span>
-            <button type="button" className="rounded-lg border border-white/30 px-3 py-1.5 hover:border-gold-400" onClick={() => supabase.auth.signOut()}>
+            <button type="button" className="rounded-lg border border-white/30 px-3 py-1.5 transition hover:border-sky-300 hover:text-sky-200" onClick={() => supabase.auth.signOut()}>
               {a('Sign out')}
             </button>
           </div>

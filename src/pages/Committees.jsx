@@ -8,8 +8,8 @@ function Person({ role, name }) {
   if (!name) return null;
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">{role}</dt>
-      <dd className="font-semibold text-navy-900">{name}</dd>
+      <dt className="text-xs font-semibold uppercase tracking-wide text-sky-300">{role}</dt>
+      <dd className="font-semibold text-white">{name}</dd>
     </div>
   );
 }
@@ -22,7 +22,7 @@ export default function Committees() {
   return (
     <>
       <PageHero eyebrow={t('common.committees')} title={t('cp.title')} intro={t('cp.intro')} />
-      <section className="py-16">
+      <section className="bg-transparent py-20 text-white">
         <div className="container-x">
           {loading ? (
             <Spinner />
@@ -35,7 +35,7 @@ export default function Committees() {
                   <a
                     key={c.id}
                     href={`#${c.id}`}
-                    className="rounded-full border border-navy-200 px-4 py-1.5 text-sm font-semibold text-navy-800 transition hover:border-gold-500 hover:bg-gold-100/50"
+                    className="rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm font-semibold text-white transition hover:border-sky-300 hover:bg-white/10 hover:text-sky-200"
                   >
                     {c.abbreviation || tr(c, 'name')}
                   </a>
@@ -50,35 +50,35 @@ export default function Committees() {
                   const vice = tr(c, 'vice_chair');
                   return (
                     <Reveal key={c.id}>
-                      <article id={c.id} className="card scroll-mt-24 !p-0 overflow-hidden">
-                        <div className="hero-bg flex flex-wrap items-center gap-3 px-6 py-5 text-white sm:px-8">
+                      <article id={c.id} className="scroll-mt-24 rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm overflow-hidden shadow-soft">
+                        <div className="border-b border-white/10 bg-white/5 flex flex-wrap items-center gap-3 px-6 py-5 text-white sm:px-8">
                           {c.abbreviation && (
-                            <span className="rounded-full bg-gold-500 px-3 py-1 text-xs font-bold tracking-widest text-navy-950">
+                            <span className="rounded-md border border-sky-400/30 bg-sky-400/10 px-2.5 py-1 text-xs font-bold tracking-wider text-sky-200">
                               {c.abbreviation}
                             </span>
                           )}
-                          <h2 className="text-2xl font-bold">{tr(c, 'name')}</h2>
+                          <h2 className="text-2xl font-bold font-serif">{tr(c, 'name')}</h2>
                         </div>
                         <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-3">
-                          <div className="space-y-5 lg:col-span-2">
+                          <div className="space-y-6 lg:col-span-2">
                             {tr(c, 'description') && (
                               <div>
-                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">{t('cp.about')}</h3>
-                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-800">{tr(c, 'description')}</p>
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-sky-300">{t('cp.about')}</h3>
+                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-100">{tr(c, 'description')}</p>
                               </div>
                             )}
                             {tr(c, 'mandate') && (
                               <div>
-                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">{t('cp.mandate')}</h3>
-                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-800">{tr(c, 'mandate')}</p>
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-sky-300">{t('cp.mandate')}</h3>
+                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-100">{tr(c, 'mandate')}</p>
                               </div>
                             )}
                             {topics.length > 0 && (
                               <div>
-                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-sky-300">
                                   {topics.length > 1 ? t('cp.topics') : t('cp.topic')}
                                 </h3>
-                                <ul className="mt-2 list-disc space-y-1 ps-5 text-navy-800">
+                                <ul className="mt-2 list-disc space-y-1 ps-5 text-navy-100">
                                   {topics.map((topic) => (
                                     <li key={topic}>{topic}</li>
                                   ))}
@@ -87,23 +87,23 @@ export default function Committees() {
                             )}
                             {tr(c, 'issues') && (
                               <div>
-                                <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-700">{t('cp.issues')}</h3>
-                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-800">{tr(c, 'issues')}</p>
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-sky-300">{t('cp.issues')}</h3>
+                                <p className="mt-2 whitespace-pre-line leading-relaxed text-navy-100">{tr(c, 'issues')}</p>
                               </div>
                             )}
                           </div>
-                          <aside className="space-y-5 rounded-xl bg-navy-50 p-5">
+                          <aside className="space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5">
                             <dl className="space-y-4">
                               <Person role={t('cp.chair')} name={chair} />
                               <Person role={t('cp.vice')} name={vice} />
-                              {!chair && !vice && <p className="text-sm text-navy-600">{t('cp.chairsTbc')}</p>}
+                              {!chair && !vice && <p className="text-sm text-navy-300">{t('cp.chairsTbc')}</p>}
                             </dl>
                             {guide ? (
                               <a href={guide} target="_blank" rel="noopener noreferrer" className="btn-navy w-full">
                                 {t('common.backgroundGuide')}
                               </a>
                             ) : (
-                              <p className="text-sm text-navy-600">{t('cp.guideSoon')}</p>
+                              <p className="text-sm text-navy-300">{t('cp.guideSoon')}</p>
                             )}
                           </aside>
                         </div>

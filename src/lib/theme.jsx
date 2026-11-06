@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-/** The site has one look: deep navy with gold. The "dark" class just selects the navy colour map in index.css. */
+/** The site has one look: deep navy with architectural light blue and off-white. The "dark" class selects the navy palette in index.css. */
 export function ThemeProvider({ children }) {
   useEffect(() => {
     document.documentElement.classList.add('dark');

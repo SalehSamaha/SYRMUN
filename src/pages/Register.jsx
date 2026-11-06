@@ -23,9 +23,9 @@ const EMPTY = {
 function Closed({ title, text }) {
   const { t } = useI18n();
   return (
-    <div className="card mx-auto max-w-2xl text-center">
-      <h2 className="text-2xl font-bold text-navy-950">{title}</h2>
-      <p className="mt-3 text-navy-700">{text}</p>
+    <div className="card mx-auto max-w-2xl text-center rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-8 shadow-soft">
+      <h2 className="text-2xl font-bold text-white">{title}</h2>
+      <p className="mt-3 text-navy-200">{text}</p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Link to="/delegates" className="btn-navy">
           {t('common.delegateInfo')}
@@ -42,47 +42,47 @@ function Success({ reference, email, reg, settings }) {
   const { t, st } = useI18n();
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="card border-t-4 border-t-gold-500">
-        <div className="grid h-14 w-14 place-items-center rounded-full bg-gold-500 text-2xl font-bold text-navy-950" aria-hidden="true">
+      <div className="card rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-6 sm:p-8 shadow-soft">
+        <div className="grid h-14 w-14 place-items-center rounded-full border border-sky-400/40 bg-sky-400/15 text-2xl font-bold text-sky-200" aria-hidden="true">
           ✓
         </div>
-        <h2 className="mt-4 text-3xl font-bold text-navy-950">{t('reg.ok.t')}</h2>
-        <p className="mt-3 text-lg leading-relaxed text-navy-800">{t('reg.ok.thanks')}</p>
+        <h2 className="mt-4 text-3xl font-bold font-serif text-white">{t('reg.ok.t')}</h2>
+        <p className="mt-3 text-lg leading-relaxed text-navy-100">{t('reg.ok.thanks')}</p>
 
-        <div className="mt-6 rounded-xl border border-gold-500/40 bg-gold-100/50 p-5">
-          <p className="font-semibold text-navy-950">{t('reg.ok.notAccepted')}</p>
-          <p className="mt-1 text-sm leading-relaxed text-navy-800">
-            {t('reg.ok.body1')} <strong className="ltr-text break-all">{email}</strong> {t('reg.ok.body2')}
+        <div className="mt-6 rounded-xl border border-sky-400/30 bg-sky-500/10 p-5">
+          <p className="font-semibold text-white">{t('reg.ok.notAccepted')}</p>
+          <p className="mt-1 text-sm leading-relaxed text-navy-200">
+            {t('reg.ok.body1')} <strong className="ltr-text break-all text-white">{email}</strong> {t('reg.ok.body2')}
           </p>
         </div>
 
         <dl className="mt-6 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl bg-navy-50 p-4">
-            <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">{t('reg.ok.ref')}</dt>
-            <dd className="ltr-text mt-1 font-mono text-xl font-bold text-navy-950">{reference}</dd>
-            <dd className="mt-1 text-xs text-navy-600">{t('reg.ok.refHint')}</dd>
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <dt className="text-xs font-semibold uppercase tracking-wider text-sky-300/80">{t('reg.ok.ref')}</dt>
+            <dd className="ltr-text mt-1 font-mono text-xl font-bold text-sky-200">{reference}</dd>
+            <dd className="mt-1 text-xs text-navy-300">{t('reg.ok.refHint')}</dd>
           </div>
           {reg.amount != null && (
-            <div className="rounded-xl bg-navy-50 p-4">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-navy-500">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-sky-300/80">
                 {t('reg.ok.fee', { label: t(`phase.${reg.phase}`) })}
               </dt>
-              <dd className="mt-1 text-xl font-bold text-navy-950">{formatMoney(reg.amount)}</dd>
-              <dd className="mt-1 text-xs text-navy-600">{t('reg.ok.feeHint')}</dd>
+              <dd className="mt-1 text-xl font-bold text-white tabular-nums">{formatMoney(reg.amount)}</dd>
+              <dd className="mt-1 text-xs text-navy-300">{t('reg.ok.feeHint')}</dd>
             </div>
           )}
         </dl>
 
         <div className="mt-6">
-          <h3 className="text-lg font-bold text-navy-950">{t('reg.ok.payment')}</h3>
-          <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-navy-800">{st('payment_instructions')}</p>
+          <h3 className="text-lg font-bold font-serif text-white">{t('reg.ok.payment')}</h3>
+          <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-navy-200">{st('payment_instructions')}</p>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-wrap gap-4">
           <Link to="/delegates" className="btn-navy">
             {t('common.delegateInfo')}
           </Link>
-          <Link to="/" className="btn-outline-dark">
+          <Link to="/" className="btn-outline">
             {t('common.backHome')}
           </Link>
         </div>
@@ -160,8 +160,8 @@ export default function Register() {
   else if (reg.state === 'closed') body = <Closed title={t('reg.closed.t')} text={t('reg.closed.d')} />;
   else
     body = (
-      <form onSubmit={submit} noValidate className="card mx-auto max-w-2xl space-y-5 !p-6 sm:!p-8">
-        <div className="rounded-xl bg-navy-50 p-4 text-sm text-navy-800">
+      <form onSubmit={submit} noValidate className="card mx-auto max-w-2xl space-y-5 rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm !p-6 sm:!p-8 shadow-soft">
+        <div className="rounded-xl border border-sky-400/20 bg-sky-500/10 p-4 text-sm text-sky-200">
           <p>
             <strong>{t('reg.feeBox', { amount: '\u200E' + formatMoney(reg.amount) + '\u200E', label: t(`phase.${reg.phase}`) })}</strong>
           </p>
@@ -228,11 +228,11 @@ export default function Register() {
           <textarea id="notes" rows={4} maxLength={1000} className="field" value={form.notes} onChange={set('notes')} />
         </Field>
 
-        <label className="flex items-start gap-3 text-sm leading-relaxed text-navy-800">
-          <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-gold-600" checked={form.consent} onChange={set('consent')} />
+        <label className="flex items-start gap-3 text-sm leading-relaxed text-navy-100">
+          <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-sky-500" checked={form.consent} onChange={set('consent')} />
           <span>
             {t('f.consent1')}{' '}
-            <Link to="/privacy" className="font-semibold underline decoration-gold-500 underline-offset-2">
+            <Link to="/privacy" className="font-semibold text-sky-300 underline decoration-sky-400 underline-offset-2">
               {t('f.privacyPage')}
             </Link>
             .
@@ -250,7 +250,7 @@ export default function Register() {
   return (
     <>
       <PageHero eyebrow={t('reg.eyebrow')} title={t('reg.title')} intro={t('reg.intro')} />
-      <section className="py-14">
+      <section className="bg-transparent py-14">
         <div className="container-x">{body}</div>
       </section>
     </>

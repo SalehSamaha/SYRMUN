@@ -47,6 +47,17 @@ export const DICT = {
     '© {year} SYRMUN. SYRMUN مؤتمر مستقل لنموذج الأمم المتحدة وليس تابعًا للأمم المتحدة.',
   ],
 
+  // ---- architectural blueprint intro ----
+  'intro.skip': ['Skip Intro', 'تخطي المقدمة'],
+  'intro.replay': ['Blueprint Intro', 'عرض المخطط المعماري'],
+  'intro.phase1': ['Drafting Grid', 'شبكة الرسم المعماري'],
+  'intro.phase2': ['Temple Construction', 'بناء المعبد الكلاسيكي'],
+  'intro.phase3': ['Laurel Wreath', 'إكليل الغار'],
+  'intro.phase4': ['Typography', 'الخط التيبوغرافي'],
+  'intro.phase5': ['Emblem Reveal', 'اكتمال الشعار'],
+  'intro.blueprintTitle': ['Architectural Blueprint', 'المخطط المعماري'],
+  'intro.scale': ['SCALE: 1:100 · DAMASCUS 2027', 'المقياس: 1:100 · دمشق 2027'],
+
   // ---- shared words ----
   'phase.early': ['Early bird', 'التسجيل المبكر'],
   'phase.regular': ['Regular', 'التسجيل العادي'],

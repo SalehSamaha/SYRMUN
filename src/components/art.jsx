@@ -28,13 +28,13 @@ export function Icon({ name, className = 'h-6 w-6' }) {
 /** Eight-pointed star divider used under headings. */
 export function Ornament({ center = false, className = '' }) {
   return (
-    <div className={`mt-4 flex items-center gap-3 text-gold-500 ${center ? 'justify-center' : ''} ${className}`} aria-hidden="true">
-      <span className="h-px w-10 bg-gradient-to-r from-transparent to-gold-500" />
+    <div className={`mt-4 flex items-center gap-3 text-sky-400 ${center ? 'justify-center' : ''} ${className}`} aria-hidden="true">
+      <span className="h-px w-10 bg-gradient-to-r from-transparent to-sky-400" />
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
         <path d="M6 6h12v12H6z" />
         <path d="M12 1.5 22.5 12 12 22.5 1.5 12z" />
       </svg>
-      <span className="h-px w-10 bg-gradient-to-l from-transparent to-gold-500" />
+      <span className="h-px w-10 bg-gradient-to-l from-transparent to-sky-400" />
     </div>
   );
 }

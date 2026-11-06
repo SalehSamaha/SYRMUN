@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import GlobeStage from './GlobeStage.jsx';
+import ArchitecturalBackground from './ArchitecturalBackground.jsx';
 import { scrollToTop, startSmoothScroll } from '../lib/smoothScroll.js';
 import Logo from './Logo.jsx';
 import { useSettings } from '../lib/content.jsx';
@@ -34,7 +34,7 @@ function LangButton({ className = '' }) {
       onClick={toggle}
       aria-label={t('lang.switchAria')}
       lang={lang === 'ar' ? 'en' : 'ar'}
-      className={`rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:border-gold-400 hover:text-gold-300 ${className}`}
+      className={`rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:border-sky-300 hover:bg-white/10 hover:text-sky-200 ${className}`}
     >
       {t('lang.switchLabel')}
     </button>
@@ -50,11 +50,11 @@ function Header() {
 
   const link = ({ isActive }) =>
     `rounded-full px-3 py-2 text-sm font-medium transition ${
-      isActive ? 'text-gold-300' : 'text-navy-100 hover:text-white'
+      isActive ? 'text-sky-300 font-semibold' : 'text-navy-100 hover:text-white'
     }`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-navy-950 text-white">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#02143b]/40 backdrop-blur-md text-white">
       <div className="container-x flex h-16 items-center justify-between gap-2">
         <Link to="/" aria-label={t('nav.home')}>
           <Logo size={40} />
@@ -76,29 +76,29 @@ function Header() {
           <LangButton className="!px-2.5 !py-2" />
           <button
             type="button"
-            className="grid h-10 w-10 place-items-center rounded-lg border border-white/20"
+            className="grid h-10 w-10 place-items-center rounded-lg border border-white/20 bg-white/5"
             aria-label={open ? t('nav.closeMenu') : t('nav.openMenu')}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
             <span className="relative block h-3.5 w-5">
-              <span className={`absolute start-0 h-0.5 w-5 bg-[#ffffff] transition ${open ? 'top-1.5 rotate-45' : 'top-0'}`} />
-              <span className={`absolute start-0 top-1.5 h-0.5 w-5 bg-[#ffffff] transition ${open ? 'opacity-0' : ''}`} />
-              <span className={`absolute start-0 h-0.5 w-5 bg-[#ffffff] transition ${open ? 'top-1.5 -rotate-45' : 'top-3'}`} />
+              <span className={`absolute start-0 h-0.5 w-5 bg-white transition ${open ? 'top-1.5 rotate-45' : 'top-0'}`} />
+              <span className={`absolute start-0 top-1.5 h-0.5 w-5 bg-white transition ${open ? 'opacity-0' : ''}`} />
+              <span className={`absolute start-0 h-0.5 w-5 bg-white transition ${open ? 'top-1.5 -rotate-45' : 'top-3'}`} />
             </span>
           </button>
         </div>
       </div>
 
       {open && (
-        <nav className="border-t border-white/10 bg-navy-950 lg:hidden" aria-label={t('nav.mobile')}>
+        <nav className="border-t border-white/10 bg-[#02143b]/90 backdrop-blur-lg lg:hidden" aria-label={t('nav.mobile')}>
           <div className="container-x flex flex-col py-3">
             {NAV.map(([to, key]) => (
               <NavLink
                 key={to}
                 to={to}
                 className={({ isActive }) =>
-                  `border-b border-white/5 py-3 text-base font-medium ${isActive ? 'text-gold-300' : 'text-navy-100'}`
+                  `border-b border-white/5 py-3 text-base font-medium ${isActive ? 'text-sky-300 font-semibold' : 'text-navy-100'}`
                 }
               >
                 {t(key)}
@@ -141,7 +141,7 @@ function Footer() {
                   href={safeUrl(url)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-full border border-white/20 px-4 py-1.5 text-sm transition hover:border-gold-400 hover:text-gold-300"
+                  className="rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm transition hover:border-sky-300 hover:text-sky-200"
                 >
                   {name}
                 </a>
@@ -151,11 +151,11 @@ function Footer() {
         </div>
 
         <div>
-          <h2 className="font-sans text-xs font-semibold uppercase tracking-widest text-gold-400">{t('footer.explore')}</h2>
+          <h2 className="font-sans text-xs font-semibold uppercase tracking-widest text-sky-300">{t('footer.explore')}</h2>
           <ul className="mt-4 space-y-2 text-sm">
             {[...NAV, ['/faq', 'nav.faq'], ['/register', 'nav.register']].map(([to, key]) => (
               <li key={to}>
-                <Link to={to} className="transition hover:text-gold-300">
+                <Link to={to} className="transition hover:text-sky-300">
                   {t(key)}
                 </Link>
               </li>
@@ -164,18 +164,18 @@ function Footer() {
         </div>
 
         <div>
-          <h2 className="font-sans text-xs font-semibold uppercase tracking-widest text-gold-400">{t('footer.contact')}</h2>
+          <h2 className="font-sans text-xs font-semibold uppercase tracking-widest text-sky-300">{t('footer.contact')}</h2>
           <ul className="mt-4 space-y-2 text-sm">
             <li>{st('venue_text')}</li>
             {settings.contact_email && (
               <li>
-                <a href={`mailto:${settings.contact_email}`} className="ltr-text break-all transition hover:text-gold-300">
+                <a href={`mailto:${settings.contact_email}`} className="ltr-text break-all transition hover:text-sky-300">
                   {settings.contact_email}
                 </a>
               </li>
             )}
             <li>
-              <Link to="/privacy" className="transition hover:text-gold-300">
+              <Link to="/privacy" className="transition hover:text-sky-300">
                 {t('footer.privacy')}
               </Link>
             </li>
@@ -193,23 +193,26 @@ export default function Layout() {
   const { t, dir, lang } = useI18n();
   useEffect(() => startSmoothScroll(), []);
   return (
-    <div className="relative flex min-h-screen flex-col" dir={dir} lang={lang}>
-      <GlobeStage />
+    <div className="relative flex min-h-screen flex-col bg-transparent text-white selection:bg-sky-500 selection:text-navy-950" dir={dir} lang={lang}>
+      <ArchitecturalBackground />
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:start-3 focus:top-3 focus:z-50 focus:rounded focus:bg-gold-500 focus:px-4 focus:py-2 focus:text-navy-950"
+        className="sr-only focus:not-sr-only focus:absolute focus:start-3 focus:top-3 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-navy-950"
       >
         {t('layout.skip')}
       </a>
       <ScrollToTop />
       {!isConfigured && (
-        <div className="bg-gold-500 px-4 py-2 text-center text-xs font-semibold text-navy-950">{t('layout.preview')}</div>
+        <div className="border-b border-sky-400/20 bg-sky-500/15 px-4 py-2 text-center text-xs font-semibold text-sky-200 backdrop-blur-sm">
+          {t('layout.preview')}
+        </div>
       )}
       <Header />
-      <main id="main" className="relative z-10 flex-1">
+      <main id="main" className="relative z-10 flex-1 bg-transparent">
         <Outlet />
       </main>
       <Footer />
     </div>
   );
 }
+

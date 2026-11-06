@@ -13,7 +13,7 @@ export default function Board() {
   return (
     <>
       <PageHero eyebrow={t('common.execBoard')} title={t('boardpage.title')} intro={t('boardpage.intro')} />
-      <section className="py-16">
+      <section className="bg-transparent py-20 text-white">
         <div className="container-x">
           {loading ? (
             <Spinner />
