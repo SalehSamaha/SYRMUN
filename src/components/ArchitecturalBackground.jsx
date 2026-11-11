@@ -1,10 +1,19 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Velocity-driven cinematic background, using the same playback model as
- * WEST MUN: native forward playback, frame-stepped reverse playback, and
- * a short friction tail after scrolling stops. This avoids trying to decode
- * a new arbitrary video timestamp for every scroll event.
+ * ArchitecturalBackground
+ *
+ * Synchronizes video playback currentTime directly with page scroll progress:
+ * - 0% scroll = 0% video (first frame)
+ * - 100% scroll = 100% video (last frame)
+ * - Scroll down: advances forward smoothly
+ * - Scroll up: reverses backward smoothly
+ * - Fast scroll: progresses fast
+ * - Slow scroll: progresses slowly
+ * - Scrolling stops: freezes immediately at current frame
+ * - Fully responsive to touchscreen gestures on mobile (touchmove, scroll, fling)
+ * - Desktop: fixed full-screen cinematic backdrop
+ * - Mobile: proportionally sized (45vh, max 420px) centered crop with soft bottom fade
  */
 export default function ArchitecturalBackground() {
   const videoRef = useRef(null);
@@ -15,206 +24,135 @@ export default function ArchitecturalBackground() {
     if (!video) return undefined;
 
     let rafId = null;
-    let lastScrollY = window.scrollY || 0;
-    let lastScrollTime = 0;
-    let lastScrollTimestamp = 0;
-    let lastFrameTime = 0;
-    let smoothedVelocity = 0;
-    let currentPlaybackRate = 1;
-    let targetPlaybackRate = 1;
-    let direction = 1;
-    let lastReverseSeekTime = 0;
-    let pendingSeekTime = null;
-    let isSeeking = false;
     let duration = 0;
+    let targetTime = 0;
+    let lastSeekTime = 0;
+    let unlocked = false;
 
-    const MIN_RATE = 0.85;
-    const MAX_RATE = 1.75;
-    const VELOCITY_MULTIPLIER = 0.45;
-    const FRICTION = 0.92;
-    const IDLE_THRESHOLD_MS = 80;
-    const MIN_HALT_RATE = 0.12;
-
+    // Configure video attributes
     video.pause();
     video.loop = false;
+    video.muted = true;
+    video.playsInline = true;
 
-    const updateProgress = () => {
-      if (!progressBarRef.current || !duration) return;
-      const progress = Math.min(1, Math.max(0, video.currentTime / duration));
-      progressBarRef.current.style.transform = `scaleX(${progress})`;
+    // Helper: calculate total scroll progress across any device/browser
+    const getScrollProgress = () => {
+      const doc = document.documentElement;
+      const body = document.body;
+      const scrollTop = window.scrollY || window.pageYOffset || doc.scrollTop || body.scrollTop || 0;
+      const scrollHeight = Math.max(
+        doc.scrollHeight,
+        body.scrollHeight,
+        doc.offsetHeight,
+        body.offsetHeight,
+        doc.clientHeight
+      );
+      const clientHeight = window.innerHeight || doc.clientHeight || 1;
+      const maxScroll = Math.max(1, scrollHeight - clientHeight);
+      return Math.min(1, Math.max(0, scrollTop / maxScroll));
     };
 
-    const dispatchReverseSeek = (time) => {
-      const target = Math.max(0, Math.min(duration || 0, time));
-      if (Math.abs(video.currentTime - target) < 0.02) return;
-
-      if (video.seeking || isSeeking) {
-        pendingSeekTime = target;
-        return;
+    // Update duration & initial target time
+    const syncDuration = () => {
+      if (video.duration && Number.isFinite(video.duration) && video.duration > 0) {
+        duration = video.duration;
+        const p = getScrollProgress();
+        targetTime = p * duration;
       }
+    };
 
+    // Mobile media unlock: briefly prime the decoder on first user gesture
+    const unlock = () => {
+      if (unlocked) return;
+      unlocked = true;
       try {
-        isSeeking = true;
-        video.currentTime = target;
-      } catch {
-        isSeeking = false;
-      }
-    };
-
-    const onSeeked = () => {
-      isSeeking = false;
-      if (pendingSeekTime !== null) {
-        const nextTime = pendingSeekTime;
-        pendingSeekTime = null;
-        dispatchReverseSeek(nextTime);
-      }
-      updateProgress();
-    };
-
-    const stop = () => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-      if (!video.paused) video.pause();
-      try {
-        video.playbackRate = 1;
+        const p = video.play();
+        if (p && typeof p.then === 'function') {
+          p.then(() => {
+            video.pause();
+          }).catch(() => {});
+        }
       } catch {}
-      currentPlaybackRate = 1;
-      smoothedVelocity = 0;
-      pendingSeekTime = null;
-      isSeeking = false;
-      updateProgress();
     };
 
-    const tick = (now) => {
-      if (document.hidden) {
-        stop();
-        return;
+    // Immediate seek / smooth step logic
+    const updateVideoFrame = () => {
+      if (!duration) {
+        syncDuration();
+        if (!duration) return;
       }
 
-      const deltaFrame = Math.min(50, Math.max(0, now - lastFrameTime));
-      lastFrameTime = now;
-      const timeSinceLastScroll = now - lastScrollTimestamp;
+      const progress = getScrollProgress();
+      targetTime = progress * duration;
 
-      if (timeSinceLastScroll > IDLE_THRESHOLD_MS) {
-        const frameRatio = deltaFrame / 16.67;
-        const decay = Math.pow(FRICTION, frameRatio);
-        currentPlaybackRate *= decay;
-        smoothedVelocity *= decay;
+      const now = performance.now();
+      const current = video.currentTime;
+      const diff = targetTime - current;
+      const absDiff = Math.abs(diff);
 
-        if (currentPlaybackRate <= MIN_HALT_RATE) {
-          stop();
-          return;
-        }
-      } else {
-        const blend = Math.min(1, 0.25 * (deltaFrame / 16.67));
-        currentPlaybackRate += (targetPlaybackRate - currentPlaybackRate) * blend;
-      }
-
-      const rate = Math.max(0.1, currentPlaybackRate);
-
-      if (direction > 0) {
-        if (duration && video.currentTime >= duration - 0.025) {
-          video.currentTime = duration;
-          stop();
-          return;
-        }
-        if (video.paused) video.play().catch(() => {});
-        try {
-          video.playbackRate = rate;
-        } catch {}
-      } else {
-        if (!video.paused) video.pause();
-        const nextTime = video.currentTime - (deltaFrame / 1000) * rate;
-        if (nextTime <= 0.02) {
-          dispatchReverseSeek(0);
-          stop();
-          return;
-        }
-
-        if (now - lastReverseSeekTime >= 30) {
-          lastReverseSeekTime = now;
-          dispatchReverseSeek(nextTime);
-        } else {
-          pendingSeekTime = nextTime;
+      // Only seek if difference exceeds threshold and video is ready for next seek
+      if (absDiff > 0.02) {
+        const canSeek = !video.seeking || now - lastSeekTime > 55;
+        if (canSeek) {
+          lastSeekTime = now;
+          // For small adjustments, step smoothly; for larger jumps (fast scroll), move aggressively
+          const step = absDiff < 0.2 ? diff : diff * 0.5;
+          const nextTime = Math.max(0, Math.min(duration, current + step));
+          try {
+            video.currentTime = nextTime;
+          } catch {}
         }
       }
 
-      updateProgress();
+      // Update the top progress bar
+      if (progressBarRef.current && duration > 0) {
+        const p = Math.min(1, Math.max(0, video.currentTime / duration));
+        progressBarRef.current.style.transform = `scaleX(${p})`;
+      }
+    };
+
+    // Animation frame loop
+    const tick = () => {
+      if (!document.hidden) {
+        updateVideoFrame();
+      }
       rafId = requestAnimationFrame(tick);
     };
 
-    const onScroll = () => {
-      const now = performance.now();
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      const dt = now - lastScrollTime;
-      const dy = scrollY - lastScrollY;
-      const absDy = Math.abs(dy);
-
-      if (absDy >= 1.5) direction = dy > 0 ? 1 : -1;
-
-      lastScrollY = scrollY;
-      lastScrollTime = now;
-      lastScrollTimestamp = now;
-
-      if (dt > 4 && dt < 250) {
-        const instantVelocity = absDy / dt;
-        smoothedVelocity = smoothedVelocity * 0.35 + instantVelocity * 0.65;
-      } else {
-        smoothedVelocity = Math.max(0.2, smoothedVelocity * 0.5);
-      }
-
-      targetPlaybackRate = Math.min(
-        MAX_RATE,
-        Math.max(MIN_RATE, MIN_RATE + smoothedVelocity * VELOCITY_MULTIPLIER)
-      );
-
-      if (direction > 0) {
-        if (video.paused) video.play().catch(() => {});
-      } else if (!video.paused) {
-        video.pause();
-      }
-
-      if (rafId === null) {
-        lastFrameTime = now;
-        rafId = requestAnimationFrame(tick);
-      }
-    };
-
-    const syncDuration = () => {
-      duration = Number.isFinite(video.duration) ? video.duration : 0;
-      updateProgress();
-    };
-
-    const onVisibilityChange = () => {
-      if (document.hidden) stop();
-    };
-
+    // Listen to video metadata events
     video.addEventListener('loadedmetadata', syncDuration);
     video.addEventListener('durationchange', syncDuration);
-    video.addEventListener('seeked', onSeeked);
-    video.addEventListener('timeupdate', updateProgress);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    document.addEventListener('visibilitychange', onVisibilityChange);
+    video.addEventListener('canplay', syncDuration);
 
+    // Initial check
     if (video.readyState >= 1) syncDuration();
 
+    // Listen to touch and user gestures to prime playback on mobile
+    window.addEventListener('touchstart', unlock, { passive: true, once: true });
+    window.addEventListener('touchmove', unlock, { passive: true, once: true });
+    window.addEventListener('scroll', unlock, { passive: true, once: true });
+    window.addEventListener('pointerdown', unlock, { passive: true, once: true });
+
+    // Start RAF loop
+    rafId = requestAnimationFrame(tick);
+
     return () => {
-      stop();
+      if (rafId) cancelAnimationFrame(rafId);
       video.removeEventListener('loadedmetadata', syncDuration);
       video.removeEventListener('durationchange', syncDuration);
-      video.removeEventListener('seeked', onSeeked);
-      video.removeEventListener('timeupdate', updateProgress);
-      window.removeEventListener('scroll', onScroll);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
+      video.removeEventListener('canplay', syncDuration);
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('touchmove', unlock);
+      window.removeEventListener('scroll', unlock);
+      window.removeEventListener('pointerdown', unlock);
     };
   }, []);
 
   return (
     <>
+      {/* Background Video Layer — 45vh max 420px on mobile with soft fade, full-bleed fixed on desktop */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#02143b]"
+        className="pointer-events-none fixed top-0 inset-x-0 z-0 h-[45vh] max-h-[420px] min-h-[280px] md:inset-0 md:h-full md:max-h-none overflow-hidden bg-[#02143b]"
         aria-hidden="true"
       >
         <video
@@ -227,9 +165,14 @@ export default function ArchitecturalBackground() {
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-[#021133]/25 via-transparent to-[#021133]/35" />
+        {/* Mobile bottom-fade scrim to smoothly dissolve video into deep navy background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#02143b]/20 via-transparent to-[#02143b] md:hidden" />
+
+        {/* Desktop subtle ambient scrim */}
+        <div className="hidden md:block absolute inset-0 bg-gradient-to-b from-[#021133]/25 via-transparent to-[#021133]/35" />
       </div>
 
+      {/* Top Architectural Blueprint Progress Line */}
       <div className="pointer-events-none fixed inset-x-0 top-0 z-50 h-[2px]" aria-hidden="true">
         <div
           ref={progressBarRef}

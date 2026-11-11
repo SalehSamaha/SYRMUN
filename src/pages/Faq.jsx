@@ -15,23 +15,23 @@ export default function Faq() {
   return (
     <>
       <PageHero eyebrow={t('common.faq')} title={t('faq.title')} intro={t('faq.intro')} />
-      <section className="bg-transparent py-20 text-white">
+      <section className="bg-transparent py-10 sm:py-16 md:py-20 text-white">
         <div className="container-x max-w-3xl">
           {loading ? (
             <Spinner />
           ) : data.length === 0 ? (
             <EmptyState title={t('faq.empty.t')} text={t('faq.empty.d')} />
           ) : (
-            <div className="space-y-10">
+            <div className="space-y-8 sm:space-y-10">
               {categories.map((c) => (
                 <div key={c}>
-                  <h2 className="mb-4 text-2xl font-bold font-serif text-white">{c}</h2>
+                  <h2 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold font-serif text-white">{c}</h2>
                   <FaqList items={data.filter((f) => cat(f) === c)} />
                 </div>
               ))}
             </div>
           )}
-          <div className="mt-12 text-center">
+          <div className="mt-8 sm:mt-12 text-center">
             <Link to="/contact" className="btn-navy">
               {t('common.contactUs')}
             </Link>

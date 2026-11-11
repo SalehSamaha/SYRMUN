@@ -13,14 +13,14 @@ export default function Board() {
   return (
     <>
       <PageHero eyebrow={t('common.execBoard')} title={t('boardpage.title')} intro={t('boardpage.intro')} />
-      <section className="bg-transparent py-20 text-white">
+      <section className="bg-transparent py-10 sm:py-16 md:py-20 text-white">
         <div className="container-x">
           {loading ? (
             <Spinner />
           ) : data.length === 0 ? (
             <EmptyState title={t('board.empty.t')} text={t('board.empty.d')} />
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {data.map((m, i) => (
                 <Reveal key={m.id} delay={(i % 3) * 80}>
                   <BoardCard member={m} />
