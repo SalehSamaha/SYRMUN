@@ -73,32 +73,32 @@ export default function Staff() {
     <>
       <PageHero eyebrow={t('st.eyebrow')} title={t('st.title')} intro={st('staff_intro')} />
 
-      <section className="bg-transparent py-20 text-white">
+      <section className="bg-transparent py-10 sm:py-16 md:py-20 text-white">
         <div className="container-x">
-          <h2 className="text-3xl font-bold font-serif text-white">{t('st.open')}</h2>
-          <div className="mt-3 h-[2px] w-14 bg-gradient-to-r from-sky-400 to-white" />
-          <div className="mt-8">
+          <h2 className="text-2xl sm:text-3xl font-bold font-serif text-white">{t('st.open')}</h2>
+          <div className="mt-2.5 sm:mt-3 h-[2px] w-14 bg-gradient-to-r from-sky-400 to-white" />
+          <div className="mt-6 sm:mt-8">
             {positions.data.length === 0 ? (
               <EmptyState title={t('st.empty.t')} text={t('st.empty.d')} />
             ) : (
-              <div className="grid gap-5 md:grid-cols-2">
+              <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
                 {positions.data.map((p) => (
                   <Reveal key={p.id}>
-                    <article className="card h-full rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-6 shadow-soft transition hover:border-sky-400/40 hover:bg-[#021742]/50">
-                      <h3 className="text-xl font-bold font-serif text-white">{tr(p, 'title')}</h3>
+                    <article className="card h-full rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-4 sm:p-6 shadow-soft transition hover:border-sky-400/40 hover:bg-[#021742]/50">
+                      <h3 className="text-lg sm:text-xl font-bold font-serif text-white">{tr(p, 'title')}</h3>
                       {p.deadline && (
-                        <p className="mt-1 text-sm font-semibold text-sky-300">{t('st.applyBy', { date: formatDate(p.deadline, lang) })}</p>
+                        <p className="mt-1 text-xs sm:text-sm font-semibold text-sky-300">{t('st.applyBy', { date: formatDate(p.deadline, lang) })}</p>
                       )}
                       {tr(p, 'description') && (
                         <>
-                          <h4 className="mt-4 text-xs font-semibold uppercase tracking-wider text-sky-300/80">{t('st.resp')}</h4>
-                          <p className="mt-1 whitespace-pre-line text-navy-100">{tr(p, 'description')}</p>
+                          <h4 className="mt-3 sm:mt-4 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-sky-300/80">{t('st.resp')}</h4>
+                          <p className="mt-1 whitespace-pre-line text-xs sm:text-sm text-navy-100 leading-relaxed">{tr(p, 'description')}</p>
                         </>
                       )}
                       {tr(p, 'requirements') && (
                         <>
-                          <h4 className="mt-4 text-xs font-semibold uppercase tracking-wider text-sky-300/80">{t('st.req')}</h4>
-                          <p className="mt-1 whitespace-pre-line text-navy-100">{tr(p, 'requirements')}</p>
+                          <h4 className="mt-3 sm:mt-4 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-sky-300/80">{t('st.req')}</h4>
+                          <p className="mt-1 whitespace-pre-line text-xs sm:text-sm text-navy-100 leading-relaxed">{tr(p, 'requirements')}</p>
                         </>
                       )}
                     </article>
@@ -108,27 +108,27 @@ export default function Staff() {
             )}
           </div>
 
-          <div className="mt-20" id="apply">
-            <h2 className="text-3xl font-bold font-serif text-white">{t('st.apply')}</h2>
-            <div className="mt-3 h-[2px] w-14 bg-gradient-to-r from-sky-400 to-white" />
-            <div className="mt-8">
+          <div className="mt-12 sm:mt-20" id="apply">
+            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-white">{t('st.apply')}</h2>
+            <div className="mt-2.5 sm:mt-3 h-[2px] w-14 bg-gradient-to-r from-sky-400 to-white" />
+            <div className="mt-6 sm:mt-8">
               {done ? (
-                <div className="card mx-auto max-w-2xl rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-6 sm:p-8 shadow-soft">
-                  <h3 className="text-2xl font-bold font-serif text-white">{t('reg.ok.t')}</h3>
-                  <p className="mt-3 text-navy-100">
+                <div className="card mx-auto max-w-2xl rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-5 sm:p-8 shadow-soft">
+                  <h3 className="text-xl sm:text-2xl font-bold font-serif text-white">{t('reg.ok.t')}</h3>
+                  <p className="mt-2.5 sm:mt-3 text-sm sm:text-base text-navy-100">
                     {t('st.ok.body1')} <strong className="ltr-text break-all text-white">{done.email}</strong>. {t('st.ok.body2')}
                   </p>
-                  <p className="mt-4 text-sm text-navy-200">
+                  <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-navy-200">
                     {t('st.ok.ref')} <span className="ltr-text font-mono font-bold text-sky-300">{done.reference}</span>
                   </p>
-                  <Link to="/" className="btn-navy mt-6">
+                  <Link to="/" className="btn-navy mt-6 w-full sm:w-auto text-center">
                     {t('common.backHome')}
                   </Link>
                 </div>
               ) : !open ? (
                 <EmptyState title={t('st.closed.t')} text={t('st.closed.d')} />
               ) : (
-                <form onSubmit={submit} noValidate className="card mx-auto max-w-2xl space-y-5 rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm !p-6 sm:!p-8 shadow-soft">
+                <form onSubmit={submit} noValidate className="card mx-auto max-w-2xl space-y-4 sm:space-y-5 rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm !p-4 sm:!p-8 shadow-soft">
                   <Honeypot value={trap} onChange={setTrap} />
 
                   <Field label={t('st.position')} htmlFor="position" required>
@@ -192,7 +192,7 @@ export default function Staff() {
                   </label>
 
                   <ErrorBox>{error}</ErrorBox>
-                  <button type="submit" className="btn-gold w-full" disabled={busy}>
+                  <button type="submit" className="btn-gold w-full min-h-[48px] text-base font-bold shadow-lg" disabled={busy}>
                     {busy ? t('f.sending') : t('f.submit')}
                   </button>
                 </form>

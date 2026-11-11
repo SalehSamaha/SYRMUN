@@ -18,7 +18,7 @@ export default function Countdown({ date }) {
 
   if (!target) {
     return (
-      <p className="inline-block rounded-full border border-white/20 px-5 py-2 text-sm text-navy-100">
+      <p className="inline-block max-w-full rounded-full border border-white/20 px-4 py-2 text-xs sm:text-sm text-navy-100 text-center leading-relaxed">
         {t('countdown.soon')}
       </p>
     );
@@ -40,14 +40,14 @@ export default function Countdown({ date }) {
   ];
 
   return (
-    <div className="flex gap-3 sm:gap-4" role="timer" aria-label={t('countdown.aria')}>
+    <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3 md:gap-4 max-w-full" role="timer" aria-label={t('countdown.aria')}>
       {parts.map(([key, value]) => (
         <div
           key={key}
-          className="min-w-[4.25rem] rounded-xl border border-white/15 bg-white/5 backdrop-blur-sm px-3 py-3 text-center sm:min-w-[5.5rem] sm:px-4"
+          className="flex-1 min-w-[3.75rem] max-w-[5.25rem] sm:max-w-none sm:min-w-[5.5rem] rounded-xl border border-white/15 bg-white/5 backdrop-blur-sm p-2 sm:px-4 sm:py-3 text-center"
         >
-          <div className="font-serif text-2xl font-bold text-white sm:text-4xl tabular-nums">{value}</div>
-          <div className="mt-1 text-[10px] uppercase tracking-widest text-sky-200/80 sm:text-xs">{t(key)}</div>
+          <div className="font-serif text-xl sm:text-3xl lg:text-4xl font-bold text-white tabular-nums">{value}</div>
+          <div className="mt-1 text-[9px] uppercase tracking-widest text-sky-200/80 sm:text-xs truncate">{t(key)}</div>
         </div>
       ))}
     </div>

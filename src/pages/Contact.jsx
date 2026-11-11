@@ -21,15 +21,15 @@ export default function Contact() {
   return (
     <>
       <PageHero eyebrow={t('nav.contact')} title={t('ct.title')} intro={t('ct.intro')} />
-      <section className="bg-transparent py-20 text-white">
+      <section className="bg-transparent py-10 sm:py-16 md:py-20 text-white">
         <div className="container-x grid gap-6 md:grid-cols-2">
           <Reveal>
-            <div className="card h-full rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-6 sm:p-8 shadow-soft transition hover:border-sky-400/30">
+            <div className="card h-full rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-5 sm:p-8 shadow-soft transition hover:border-sky-400/30">
               <p className="eyebrow">{t('ct.email')}</p>
               {settings.contact_email ? (
                 <a
                   href={`mailto:${settings.contact_email}`}
-                  className="ltr-text mt-3 block break-all font-serif text-2xl font-bold text-white underline decoration-sky-400 underline-offset-4 transition hover:text-sky-300"
+                  className="ltr-text mt-3 block break-all font-serif text-xl sm:text-2xl font-bold text-white underline decoration-sky-400 underline-offset-4 transition hover:text-sky-300"
                 >
                   {settings.contact_email}
                 </a>
@@ -41,10 +41,10 @@ export default function Contact() {
           </Reveal>
 
           <Reveal delay={100}>
-            <div className="card h-full rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-6 sm:p-8 shadow-soft transition hover:border-sky-400/30">
+            <div className="card h-full rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-5 sm:p-8 shadow-soft transition hover:border-sky-400/30">
               <p className="eyebrow">{t('ct.follow')}</p>
               {socials.length > 0 ? (
-                <div className="mt-4 flex flex-wrap gap-3">
+                <div className="mt-4 flex flex-wrap gap-2.5 sm:gap-3">
                   {socials.map(([name, url]) => (
                     <a key={name} href={safeUrl(url)} target="_blank" rel="noopener noreferrer" className="btn-navy">
                       {name}
@@ -59,10 +59,10 @@ export default function Contact() {
           </Reveal>
 
           <Reveal className="md:col-span-2">
-            <div className="rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-8 text-center shadow-soft">
-              <h2 className="text-2xl font-bold font-serif text-white">{t('ct.quick.t')}</h2>
-              <p className="mt-2 text-navy-200">{t('ct.quick.d')}</p>
-              <div className="mt-6 flex flex-wrap justify-center gap-4">
+            <div className="rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-5 sm:p-8 text-center shadow-soft">
+              <h2 className="text-xl sm:text-2xl font-bold font-serif text-white">{t('ct.quick.t')}</h2>
+              <p className="mt-2 text-sm sm:text-base text-navy-200">{t('ct.quick.d')}</p>
+              <div className="mt-6 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3 sm:gap-4">
                 <Link to="/faq" className="btn-navy">
                   {t('common.faq')}
                 </Link>

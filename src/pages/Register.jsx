@@ -42,47 +42,47 @@ function Success({ reference, email, reg, settings }) {
   const { t, st } = useI18n();
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="card rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-6 sm:p-8 shadow-soft">
-        <div className="grid h-14 w-14 place-items-center rounded-full border border-sky-400/40 bg-sky-400/15 text-2xl font-bold text-sky-200" aria-hidden="true">
+      <div className="card rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm p-5 sm:p-8 shadow-soft">
+        <div className="grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-full border border-sky-400/40 bg-sky-400/15 text-xl sm:text-2xl font-bold text-sky-200" aria-hidden="true">
           ✓
         </div>
-        <h2 className="mt-4 text-3xl font-bold font-serif text-white">{t('reg.ok.t')}</h2>
-        <p className="mt-3 text-lg leading-relaxed text-navy-100">{t('reg.ok.thanks')}</p>
+        <h2 className="mt-4 text-2xl sm:text-3xl font-bold font-serif text-white">{t('reg.ok.t')}</h2>
+        <p className="mt-2.5 sm:mt-3 text-base sm:text-lg leading-relaxed text-navy-100">{t('reg.ok.thanks')}</p>
 
-        <div className="mt-6 rounded-xl border border-sky-400/30 bg-sky-500/10 p-5">
-          <p className="font-semibold text-white">{t('reg.ok.notAccepted')}</p>
-          <p className="mt-1 text-sm leading-relaxed text-navy-200">
+        <div className="mt-5 sm:mt-6 rounded-xl border border-sky-400/30 bg-sky-500/10 p-4 sm:p-5">
+          <p className="font-semibold text-white text-sm sm:text-base">{t('reg.ok.notAccepted')}</p>
+          <p className="mt-1 text-xs sm:text-sm leading-relaxed text-navy-200">
             {t('reg.ok.body1')} <strong className="ltr-text break-all text-white">{email}</strong> {t('reg.ok.body2')}
           </p>
         </div>
 
-        <dl className="mt-6 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <dt className="text-xs font-semibold uppercase tracking-wider text-sky-300/80">{t('reg.ok.ref')}</dt>
-            <dd className="ltr-text mt-1 font-mono text-xl font-bold text-sky-200">{reference}</dd>
+        <dl className="mt-5 sm:mt-6 grid gap-3 sm:gap-4 sm:grid-cols-2">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 sm:p-4">
+            <dt className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-sky-300/80">{t('reg.ok.ref')}</dt>
+            <dd className="ltr-text mt-1 font-mono text-lg sm:text-xl font-bold text-sky-200">{reference}</dd>
             <dd className="mt-1 text-xs text-navy-300">{t('reg.ok.refHint')}</dd>
           </div>
           {reg.amount != null && (
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-              <dt className="text-xs font-semibold uppercase tracking-wider text-sky-300/80">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 sm:p-4">
+              <dt className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-sky-300/80">
                 {t('reg.ok.fee', { label: t(`phase.${reg.phase}`) })}
               </dt>
-              <dd className="mt-1 text-xl font-bold text-white tabular-nums">{formatMoney(reg.amount)}</dd>
+              <dd className="mt-1 text-lg sm:text-xl font-bold text-white tabular-nums">{formatMoney(reg.amount)}</dd>
               <dd className="mt-1 text-xs text-navy-300">{t('reg.ok.feeHint')}</dd>
             </div>
           )}
         </dl>
 
-        <div className="mt-6">
-          <h3 className="text-lg font-bold font-serif text-white">{t('reg.ok.payment')}</h3>
-          <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-navy-200">{st('payment_instructions')}</p>
+        <div className="mt-5 sm:mt-6">
+          <h3 className="text-base sm:text-lg font-bold font-serif text-white">{t('reg.ok.payment')}</h3>
+          <p className="mt-1 whitespace-pre-line text-xs sm:text-sm leading-relaxed text-navy-200">{st('payment_instructions')}</p>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Link to="/delegates" className="btn-navy">
+        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <Link to="/delegates" className="btn-navy w-full sm:w-auto text-center">
             {t('common.delegateInfo')}
           </Link>
-          <Link to="/" className="btn-outline">
+          <Link to="/" className="btn-outline w-full sm:w-auto text-center">
             {t('common.backHome')}
           </Link>
         </div>
@@ -160,8 +160,8 @@ export default function Register() {
   else if (reg.state === 'closed') body = <Closed title={t('reg.closed.t')} text={t('reg.closed.d')} />;
   else
     body = (
-      <form onSubmit={submit} noValidate className="card mx-auto max-w-2xl space-y-5 rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm !p-6 sm:!p-8 shadow-soft">
-        <div className="rounded-xl border border-sky-400/20 bg-sky-500/10 p-4 text-sm text-sky-200">
+      <form onSubmit={submit} noValidate className="card mx-auto max-w-2xl space-y-4 sm:space-y-5 rounded-2xl border border-white/10 bg-[#021742]/35 backdrop-blur-sm !p-4 sm:!p-8 shadow-soft">
+        <div className="rounded-xl border border-sky-400/20 bg-sky-500/10 p-3.5 sm:p-4 text-xs sm:text-sm text-sky-200">
           <p>
             <strong>{t('reg.feeBox', { amount: '\u200E' + formatMoney(reg.amount) + '\u200E', label: t(`phase.${reg.phase}`) })}</strong>
           </p>
@@ -181,7 +181,7 @@ export default function Register() {
           <input id="institution" className="field" maxLength={160} value={form.institution} onChange={set('institution')} />
         </Field>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
           <Field label={t('f.age')} htmlFor="age_group">
             <select id="age_group" className="field" value={form.age_group} onChange={set('age_group')}>
               <option value="">{t('f.select')}</option>
@@ -205,7 +205,7 @@ export default function Register() {
         </div>
 
         {committees.data.length > 0 && (
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
             {[
               ['committee_pref_1', 'f.pref1'],
               ['committee_pref_2', 'f.pref2'],
@@ -228,8 +228,8 @@ export default function Register() {
           <textarea id="notes" rows={4} maxLength={1000} className="field" value={form.notes} onChange={set('notes')} />
         </Field>
 
-        <label className="flex items-start gap-3 text-sm leading-relaxed text-navy-100">
-          <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-sky-500" checked={form.consent} onChange={set('consent')} />
+        <label className="flex items-start gap-3 text-xs sm:text-sm leading-relaxed text-navy-100 cursor-pointer">
+          <input type="checkbox" className="mt-0.5 sm:mt-1 h-5 w-5 shrink-0 accent-sky-500 rounded" checked={form.consent} onChange={set('consent')} />
           <span>
             {t('f.consent1')}{' '}
             <Link to="/privacy" className="font-semibold text-sky-300 underline decoration-sky-400 underline-offset-2">
@@ -241,7 +241,7 @@ export default function Register() {
 
         <ErrorBox>{error}</ErrorBox>
 
-        <button type="submit" className="btn-gold w-full" disabled={busy}>
+        <button type="submit" className="btn-gold w-full min-h-[48px] text-base font-bold shadow-lg" disabled={busy}>
           {busy ? t('f.sending') : t('f.submit')}
         </button>
       </form>
@@ -250,7 +250,7 @@ export default function Register() {
   return (
     <>
       <PageHero eyebrow={t('reg.eyebrow')} title={t('reg.title')} intro={t('reg.intro')} />
-      <section className="bg-transparent py-14">
+      <section className="bg-transparent py-8 sm:py-14">
         <div className="container-x">{body}</div>
       </section>
     </>
